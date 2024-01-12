@@ -18,10 +18,30 @@ class TestObjects(unittest.TestCase):
         Chord(60, 64, 67)
 
     def test_rhythm(self):
-        Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))})
-        Rhythm(Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4)))
-        Rhythm({(frac(1, 4), frac(1, 4)), (frac(1, 2), frac(1, 4))})
-        Rhythm((frac(1, 4), frac(1, 4)), (frac(1, 2), frac(1, 4)))
+        r_1 = Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))})
+        r_2 = Rhythm(Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4)))
+        r_3 = Rhythm({(frac(1, 4), frac(1, 4)), (frac(1, 2), frac(1, 4))})
+        r_4 = Rhythm((frac(1, 4), frac(1, 4)), (frac(1, 2), frac(1, 4)))
+        assert r_1 == r_2 == r_3 == r_4
+
+    def test_harmony(self):
+        h_1 = Harmony([Chord({Pitch(60), Pitch(64), Pitch(67)}), Chord({Pitch(62), Pitch(65), Pitch(69)})])
+        h_2 = Harmony(Chord({Pitch(60), Pitch(64), Pitch(67)}), Chord({Pitch(62), Pitch(65), Pitch(69)}))
+        h_3 = Harmony([{60, 64, 67}, {62, 65, 69}])
+        h_4 = Harmony({60, 64, 67}, {62, 65, 69})
+        assert h_1 == h_2 == h_3 == h_4
+
+    def test_texture(self):
+        Texture([Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}),
+                 Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))})])
+        Texture(Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}),
+                Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}))
+
+    def test_harmonic_texture(self):
+        texture = Texture(Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}),
+                          Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}))
+        harmony = Harmony([Chord({Pitch(60), Pitch(64), Pitch(67)}), Chord({Pitch(62), Pitch(65), Pitch(69)})])
+        assert HarmonicTexture(texture, harmony) == texture * harmony
 
 
 if __name__ == '__main__':
@@ -30,3 +50,6 @@ if __name__ == '__main__':
     test_objects.test_hit()
     test_objects.test_chord()
     test_objects.test_rhythm()
+    test_objects.test_harmony()
+    test_objects.test_texture()
+    test_objects.test_harmonic_texture()
