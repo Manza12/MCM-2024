@@ -159,3 +159,45 @@ class HarmonicTexture:
         if not isinstance(other, HarmonicTexture):
             return False
         return self.texture == other.texture and self.harmony == other.harmony
+
+    def notes(self) -> Set['Note']:
+        result = set()
+        for rhythm, chord in zip(self.texture.rhythms, self.harmony.chords):
+            for hit in rhythm.hits:
+                for pitch in chord.pitches:
+                    result.add(Note(pitch, hit.onset, hit.duration))
+        return result
+
+    def to_midi(self, instrument='Acoustic Grand Piano', velocity=100, bpm=100):
+        import pretty_midi
+        notes = self.notes()
+        start = min(note.onset for note in notes)
+        midi = pretty_midi.PrettyMIDI()
+        instrument_program = pretty_midi.instrument_name_to_program(instrument)
+        track = pretty_midi.Instrument(program=instrument_program)
+        for note in notes:
+            onset_s = float((note.onset-start) * 240 / bpm)
+            duration_s = float(note.duration * 240 / bpm)
+            end_s = onset_s + duration_s
+            note = pretty_midi.Note(velocity=velocity, pitch=note.pitch, start=onset_s, end=end_s)
+            track.notes.append(note)
+        midi.instruments.append(track)
+        return midi
+
+
+class Note:
+    def __init__(self, pitch: Pitch, onset: frac, duration: frac):
+        self.pitch = pitch
+        self.onset = onset
+        self.duration = duration
+
+    def __eq__(self, other):
+        if not isinstance(other, Note):
+            return False
+        return self.pitch == other.pitch and self.onset == other.onset and self.duration == other.duration
+
+    def __hash__(self):
+        return hash((self.pitch, self.onset, self.duration))
+
+    def __str__(self):
+        return f'{self.pitch} @ {self.onset} for {self.duration}'
