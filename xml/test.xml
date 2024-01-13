@@ -1,22 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <parallel xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="score-tree.xsd">
     <concatenate>
-        <product>
-            <texture>
+        <product id="Accompaniment 1-1">
+            <texture id="texture-accompaniment">
                 <rhythm>
                     <hit>
                         <start num="0" den="8"/>
                         <duration num="1" den="8"/>
                     </hit>
                 </rhythm>
+                <rhythm>
+                    <hit>
+                        <start num="1" den="8"/>
+                        <duration num="1" den="8"/>
+                    </hit>
+                </rhythm>
+                <rhythm>
+                    <hit>
+                        <start num="2" den="8"/>
+                        <duration num="1" den="8"/>
+                    </hit>
+                </rhythm>
+            </texture>
+            <harmony>
+                <chord>
+                    <pitch id="Eb2">
+                        <number>39</number>
+                    </pitch>
+                </chord>
+                <chord>
+                    <pitch>
+                        <number>55</number>
+                    </pitch>
+                    <pitch>
+                        <number>63</number>
+                    </pitch>
+                </chord>
+                <chord>
+                    <pitch>
+                        <number>58</number>
+                    </pitch>
+                    <pitch>
+                        <number>63</number>
+                    </pitch>
+                    <pitch>
+                        <number>67</number>
+                    </pitch>
+                </chord>
+            </harmony>
+        </product>
+        <product>
+            <texture>
+                <id>texture-accompaniment</id>
             </texture>
             <harmony>
                 <chord>
                     <pitch>
-                        <number>39</number>
+                        <number>51</number>
+                    </pitch>
+                </chord>
+                <chord>
+                    <pitch>
+                        <number>56</number>
+                    </pitch>
+                    <pitch>
+                        <number>62</number>
+                    </pitch>
+                </chord>
+                <chord>
+                    <pitch>
+                        <number>59</number>
+                    </pitch>
+                    <pitch>
+                        <number>62</number>
+                    </pitch>
+                    <pitch>
+                        <number>65</number>
                     </pitch>
                 </chord>
             </harmony>
+        </product>
+        <product>
+            <id>Accompaniment 1-1</id>
         </product>
     </concatenate>
 </parallel>

@@ -1,3 +1,4 @@
+import warnings
 from fractions import Fraction as frac
 from typing import Set, List, Tuple, Union
 from multimethod import multimethod
@@ -81,6 +82,9 @@ class Texture:
             return False
         return self.rhythms == other.rhythms
 
+    def __len__(self):
+        return len(self.rhythms)
+
     @property
     def endpoint(self) -> frac:
         result = frac(0)
@@ -159,6 +163,9 @@ class Harmony:
             return False
         return self.chords == other.chords
 
+    def __len__(self):
+        return len(self.chords)
+
 
 # Time-Frequency
 class HarmonicTexture:
@@ -174,6 +181,8 @@ class HarmonicTexture:
 
     @multimethod
     def __init__(self, texture: Texture, harmony: Harmony):
+        if len(texture) != len(harmony):
+            warnings.warn("Texture and harmony have different lengths")
         self.texture = texture
         self.harmony = harmony
 
