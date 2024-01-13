@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Types -->
+    <xs:simpleType name="positive">
+        <xs:restriction base="xs:positiveInteger">
+            <xs:minInclusive value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="frac">
+        <xs:attribute name="num" type="xs:integer" use="required"/>
+        <xs:attribute name="den" type="positive" use="required"/>
+    </xs:complexType>
+
+    <!-- Time -->
+    <xs:element name="hit">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence>
+                    <xs:element name="start" type="frac"/>
+                    <xs:element name="duration" type="frac"/>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="rhythm">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence>
+                    <xs:element ref="hit" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="texture">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence>
+                    <xs:element ref="rhythm" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Frequency -->
+    <xs:element name="pitch">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:element name="number" type="xs:integer"/>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="chord">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence>
+                    <xs:element ref="pitch" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="harmony">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence>
+                    <xs:element ref="chord" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Operators -->
+    <xs:element name="product">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence>
+                    <xs:element ref="texture"/>
+                    <xs:element ref="harmony"/>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="parallel">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                    <xs:choice maxOccurs="unbounded">
+                        <xs:element ref="product"/>
+                        <xs:element ref="parallel"/>
+                        <xs:element ref="concatenate"/>
+                    </xs:choice>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="concatenate">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                    <xs:choice maxOccurs="unbounded">
+                        <xs:element ref="product"/>
+                        <xs:element ref="parallel"/>
+                        <xs:element ref="concatenate"/>
+                    </xs:choice>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

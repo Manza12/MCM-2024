@@ -3,10 +3,7 @@ from typing import Set, List, Tuple, Union
 from multimethod import multimethod
 
 
-class Pitch(int):
-    pass
-
-
+# Time
 class Hit:
     @multimethod
     def __init__(self, hit: 'Hit'):
@@ -29,29 +26,6 @@ class Hit:
         if not isinstance(other, Hit):
             return False
         return self.onset == other.onset and self.duration == other.duration
-
-
-class Chord:
-    @multimethod
-    def __init__(self, chord: 'Chord'):
-        self.pitches = {p for p in chord.pitches}
-
-    @multimethod
-    def __init__(self, pitches: Set[Pitch]):
-        self.pitches = pitches
-
-    @multimethod
-    def __init__(self, *pitches: Union[Pitch, int]):
-        self.pitches = {Pitch(p) for p in pitches}
-
-    @multimethod
-    def __init__(self, pitches: Set[int]):
-        self.pitches = {Pitch(p) for p in pitches}
-
-    def __eq__(self, other):
-        if not isinstance(other, Chord):
-            return False
-        return self.pitches == other.pitches
 
 
 class Rhythm:
@@ -80,6 +54,86 @@ class Rhythm:
         return self.hits == other.hits
 
 
+class Texture:
+    @multimethod
+    def __init__(self, texture: 'Texture'):
+        self.rhythms = [r for r in texture.rhythms]
+
+    @multimethod
+    def __init__(self, *rhythms: Rhythm):
+        self.rhythms = [r for r in rhythms]
+
+    @multimethod
+    def __init__(self, rhythms: List[Rhythm]):
+        self.rhythms = rhythms
+
+    def __mul__(self, harmony: 'Harmony') -> 'HarmonicTexture':
+        return HarmonicTexture(self, harmony)
+
+    def __add__(self, other: 'Texture') -> 'Texture':
+        return Texture(self.rhythms + other.rhythms)
+
+    def __sub__(self, other: 'Texture') -> 'Texture':
+        return Texture(self.rhythms + [r + self.endpoint for r in other.rhythms])
+
+    def __eq__(self, other):
+        if not isinstance(other, Texture):
+            return False
+        return self.rhythms == other.rhythms
+
+    @property
+    def endpoint(self) -> frac:
+        result = frac(0)
+        for rhythm in self.rhythms:
+            for hit in rhythm.hits:
+                end = hit.onset + hit.duration
+                if end > result:
+                    result = end
+        return result
+
+
+# Frequency
+class Pitch:
+    @multimethod
+    def __init__(self, pitch: 'Pitch'):
+        self.number = pitch.number
+
+    @multimethod
+    def __init__(self, number: int):
+        self.number = number
+
+    def __eq__(self, other):
+        if not isinstance(other, Pitch):
+            return False
+        return self.number == other.number
+
+    def __hash__(self):
+        return hash(self.number)
+
+
+class Chord:
+    @multimethod
+    def __init__(self, chord: 'Chord'):
+        self.pitches = {p for p in chord.pitches}
+
+    @multimethod
+    def __init__(self, pitches: Set[Pitch]):
+        self.pitches = pitches
+
+    @multimethod
+    def __init__(self, *pitches: Union[Pitch, int]):
+        self.pitches = {Pitch(p) for p in pitches}
+
+    @multimethod
+    def __init__(self, pitches: Set[int]):
+        self.pitches = {Pitch(p) for p in pitches}
+
+    def __eq__(self, other):
+        if not isinstance(other, Chord):
+            return False
+        return self.pitches == other.pitches
+
+
 class Harmony:
     @multimethod
     def __init__(self, harmony: 'Harmony'):
@@ -106,45 +160,19 @@ class Harmony:
         return self.chords == other.chords
 
 
-class Texture:
-    @multimethod
-    def __init__(self, texture: 'Texture'):
-        self.rhythms = [r for r in texture.rhythms]
-
-    @multimethod
-    def __init__(self, *rhythms: Rhythm):
-        self.rhythms = [r for r in rhythms]
-
-    @multimethod
-    def __init__(self, rhythms: List[Rhythm]):
-        self.rhythms = rhythms
-
-    def __mul__(self, harmony: Harmony) -> 'HarmonicTexture':
-        return HarmonicTexture(self, harmony)
-
-    def __add__(self, other: 'Texture') -> 'Texture':
-        return Texture(self.rhythms + other.rhythms)
-
-    def __sub__(self, other: 'Texture') -> 'Texture':
-        return Texture(self.rhythms + [r + self.endpoint for r in other.rhythms])
-
-    def __eq__(self, other):
-        if not isinstance(other, Texture):
-            return False
-        return self.rhythms == other.rhythms
-
-    @property
-    def endpoint(self) -> frac:
-        result = frac(0)
-        for rhythm in self.rhythms:
-            for hit in rhythm.hits:
-                end = hit.onset + hit.duration
-                if end > result:
-                    result = end
-        return result
-
-
+# Time-Frequency
 class HarmonicTexture:
+    @multimethod
+    def __init__(self):
+        self.texture = Texture()
+        self.harmony = Harmony()
+
+    @multimethod
+    def __init__(self, harmonic_texture: 'HarmonicTexture'):
+        self.texture = Texture(harmonic_texture.texture)
+        self.harmony = Harmony(harmonic_texture.harmony)
+
+    @multimethod
     def __init__(self, texture: Texture, harmony: Harmony):
         self.texture = texture
         self.harmony = harmony
@@ -168,7 +196,7 @@ class HarmonicTexture:
                     result.add(Note(pitch, hit.onset, hit.duration))
         return result
 
-    def to_midi(self, instrument='Acoustic Grand Piano', velocity=100, bpm=100):
+    def to_midi(self, instrument='Acoustic Grand Piano', velocity=64, bpm=100):
         import pretty_midi
         notes = self.notes()
         start = min(note.onset for note in notes)
@@ -179,7 +207,7 @@ class HarmonicTexture:
             onset_s = float((note.onset-start) * 240 / bpm)
             duration_s = float(note.duration * 240 / bpm)
             end_s = onset_s + duration_s
-            note = pretty_midi.Note(velocity=velocity, pitch=note.pitch, start=onset_s, end=end_s)
+            note = pretty_midi.Note(velocity=velocity, pitch=note.pitch.number, start=onset_s, end=end_s)
             track.notes.append(note)
         midi.instruments.append(track)
         return midi

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parallel xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="score-tree.xsd">
+    <concatenate>
+        <product>
+            <texture>
+                <rhythm>
+                    <hit>
+                        <start num="0" den="8"/>
+                        <duration num="1" den="8"/>
+                    </hit>
+                </rhythm>
+            </texture>
+            <harmony>
+                <chord>
+                    <pitch>
+                        <number>39</number>
+                    </pitch>
+                </chord>
+            </harmony>
+        </product>
+    </concatenate>
+</parallel>
