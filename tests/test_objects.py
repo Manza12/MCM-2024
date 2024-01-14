@@ -46,10 +46,8 @@ class TestObjects(unittest.TestCase):
 
 if __name__ == '__main__':
     test_objects = TestObjects()
-    test_objects.test_pitch()
-    test_objects.test_hit()
-    test_objects.test_chord()
-    test_objects.test_rhythm()
-    test_objects.test_harmony()
-    test_objects.test_texture()
-    test_objects.test_harmonic_texture()
+    tests = [method for method in dir(TestObjects) if method.startswith('test_')]
+
+    for test_name in tests:
+        test = getattr(test_objects, test_name)
+        test()

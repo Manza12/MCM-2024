@@ -22,5 +22,5 @@ fragment = ht.notes()
 for note in fragment:
     print(note)
 
-midi = ht.to_midi(bpm=60, velocity=50)
-midi.write('data/test.mid')
+midi = ht.to_midi(bpm=36)
+midi.write('data/test_script.mid')
