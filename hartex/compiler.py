@@ -5,22 +5,58 @@ from .objects import frac, Hit, Rhythm, Texture, Pitch, Chord, Harmony, Harmonic
 
 class ScoreTree:
     def __init__(self, file_path: Path):
+        # File path
         self.file_path = file_path
 
+        # Metadata
+        self.title = ''
+        self.composer = ''
+        self.tempo = ScoreTree.Tempo(frac(1, 4), 100)
+
+        # Objects
         self.objects = {}
 
+        # Parse XML
         self.tree = ET.parse(file_path)
         self.root = self.tree.getroot()
 
-        self.harmonic_texture = self.decode(self.root)
+        # Decode XML
+        self.harmonic_texture = None
+        self.decode(self.root)
 
-    def to_midi(self, instrument: str = 'Acoustic Grand Piano', bpm: int = 64, velocity: int = 50):
+    class Tempo:
+        def __init__(self, beat: frac, bpm: int):
+            self.beat = beat
+            self.bpm = bpm
+
+        def __str__(self):
+            return f'{self.beat} = {self.bpm}'
+
+    def to_midi(self, instrument: str = 'Acoustic Grand Piano', velocity: int = 50):
+        bpm = self.tempo.bpm * self.tempo.beat / frac(1, 4)
         return self.harmonic_texture.to_midi(instrument, velocity, bpm)
 
     def decode(self, element: ET.Element):
-        if element.tag == 'start':
-            return frac(int(element.attrib['num']), int(element.attrib['den']))
-        elif element.tag == 'duration':
+        # Root
+        if element.tag == 'score-tree':
+            for child in element:
+                self.decode(child)
+        # Metadata
+        elif element.tag == 'title':
+            self.title = element.text
+        elif element.tag == 'composer':
+            self.composer = element.text
+        elif element.tag == 'tempo':
+            self.tempo = ScoreTree.Tempo(self.decode(element[0]), int(element[1].text))
+        # Ids
+        elif element.tag in ['hits', 'rhythms', 'textures', 'pitches', 'chords', 'harmonies']:
+            for child in element:
+                assert child.attrib.get('id') is not None
+                self.objects[child.attrib['id']] = self.decode(child)
+        elif element.tag == 'id':
+            return self.objects[element.text]
+        # Objects
+        elif element.tag == 'onset' or element.tag == 'duration' or element.tag == 'beat':
             return frac(int(element.attrib['num']), int(element.attrib['den']))
         elif element.tag == 'hit':
             # Check if it's a reference
@@ -121,6 +157,7 @@ class ScoreTree:
                 self.objects[element.attrib['id']] = harmony
 
             return harmony
+        # Operators
         elif element.tag == 'product':
             # Check if it's a reference
             if len(element) != 0 and element[0].tag == 'id':
@@ -166,7 +203,9 @@ class ScoreTree:
                 self.objects[element.attrib['id']] = harmonic_texture
 
             return harmonic_texture
-        elif element.tag == 'id':
-            return self.objects[element.text]
+        elif element.tag == 'harmonic-texture':
+            harmonic_texture = self.decode(element[0])
+            self.harmonic_texture = harmonic_texture
+        # Not implemented
         else:
             raise NotImplementedError("Tag '%s' not implemented." % element.tag)

@@ -19,7 +19,7 @@
             <xs:choice>
                 <xs:element name="id" type="xs:string"/>
                 <xs:sequence>
-                    <xs:element name="start" type="frac"/>
+                    <xs:element name="onset" type="frac"/>
                     <xs:element name="duration" type="frac"/>
                 </xs:sequence>
             </xs:choice>
@@ -129,6 +129,75 @@
                 </xs:sequence>
             </xs:choice>
             <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Score -->
+    <xs:element name="score-tree">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="title" type="xs:string" minOccurs="0"/>
+                <xs:element name="composer" type="xs:string" minOccurs="0"/>
+                <xs:element name="tempo">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="beat" type="frac"/>
+                            <xs:element name="bpm" type="xs:integer"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="hits" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="hit" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="rhythms" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="rhythm" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="textures" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="texture" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="pitches" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="pitch" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="chords" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="chord" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="harmonies" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="harmony" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="harmonic-texture">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element ref="product"/>
+                            <xs:element ref="parallel"/>
+                            <xs:element ref="concatenate"/>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
         </xs:complexType>
     </xs:element>
 </xs:schema>

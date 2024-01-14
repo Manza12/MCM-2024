@@ -1,87 +1,181 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<parallel xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="score-tree.xsd">
-    <concatenate>
-        <product id="Accompaniment 1-1">
-            <texture id="texture-accompaniment">
-                <rhythm>
-                    <hit>
-                        <start num="0" den="8"/>
-                        <duration num="1" den="8"/>
-                    </hit>
-                </rhythm>
-                <rhythm>
-                    <hit>
-                        <start num="1" den="8"/>
-                        <duration num="1" den="8"/>
-                    </hit>
-                </rhythm>
-                <rhythm>
-                    <hit>
-                        <start num="2" den="8"/>
-                        <duration num="1" den="8"/>
-                    </hit>
-                </rhythm>
-            </texture>
-            <harmony>
-                <chord>
-                    <pitch id="Eb2">
-                        <number>39</number>
-                    </pitch>
-                </chord>
-                <chord>
-                    <pitch>
-                        <number>55</number>
-                    </pitch>
-                    <pitch>
-                        <number>63</number>
-                    </pitch>
-                </chord>
-                <chord>
-                    <pitch>
-                        <number>58</number>
-                    </pitch>
-                    <pitch>
-                        <number>63</number>
-                    </pitch>
-                    <pitch>
-                        <number>67</number>
-                    </pitch>
-                </chord>
-            </harmony>
-        </product>
-        <product>
-            <texture>
-                <id>texture-accompaniment</id>
-            </texture>
-            <harmony>
-                <chord>
-                    <pitch>
-                        <number>51</number>
-                    </pitch>
-                </chord>
-                <chord>
-                    <pitch>
-                        <number>56</number>
-                    </pitch>
-                    <pitch>
-                        <number>62</number>
-                    </pitch>
-                </chord>
-                <chord>
-                    <pitch>
-                        <number>59</number>
-                    </pitch>
-                    <pitch>
-                        <number>62</number>
-                    </pitch>
-                    <pitch>
-                        <number>65</number>
-                    </pitch>
-                </chord>
-            </harmony>
-        </product>
-        <product>
-            <id>Accompaniment 1-1</id>
-        </product>
-    </concatenate>
-</parallel>
+<score-tree xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="score-tree.xsd">
+    <title>Nocturne nº2 Op.9</title>
+    <composer>Chopin</composer>
+    <tempo>
+        <beat num="1" den="8"/>
+        <bpm>72</bpm>
+    </tempo>
+    <textures>
+        <texture id="texture-accompaniment">
+            <rhythm>
+                <hit>
+                    <onset num="0" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+            </rhythm>
+            <rhythm>
+                <hit>
+                    <onset num="1" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+            </rhythm>
+            <rhythm>
+                <hit>
+                    <onset num="2" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+            </rhythm>
+        </texture>
+        <texture id="texture-melody">
+            <rhythm>
+                <hit>
+                    <onset num="-1" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+            </rhythm>
+            <rhythm>
+                <hit>
+                    <onset num="9" den="8"/>
+                    <duration num="1" den="4"/>
+                </hit>
+            </rhythm>
+            <rhythm>
+                <hit>
+                    <onset num="1" den="2"/>
+                    <duration num="1" den="8"/>
+                </hit>
+                <hit>
+                    <onset num="6" den="8"/>
+                    <duration num="3" den="8"/>
+                </hit>
+            </rhythm>
+            <rhythm>
+                <hit>
+                    <onset num="0" den="2"/>
+                    <duration num="1" den="2"/>
+                </hit>
+                <hit>
+                    <onset num="5" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+            </rhythm>
+        </texture>
+    </textures>
+    <harmonic-texture>
+        <parallel>
+            <concatenate>
+                <product id="Accompaniment 1-1">
+                    <texture>
+                        <id>texture-accompaniment</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch id="Eb2">
+                                <number>39</number>
+                            </pitch>
+                        </chord>
+                        <chord id="chord-1-1-2">
+                            <pitch>
+                                <number>55</number>
+                            </pitch>
+                            <pitch>
+                                <number>63</number>
+                            </pitch>
+                        </chord>
+                        <chord id="chord-1-1-3">
+                            <pitch>
+                                <number>58</number>
+                            </pitch>
+                            <pitch>
+                                <number>63</number>
+                            </pitch>
+                            <pitch>
+                                <number>67</number>
+                            </pitch>
+                        </chord>
+                    </harmony>
+                </product>
+                <product>
+                    <texture>
+                        <id>texture-accompaniment</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch>
+                                <number>51</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <pitch>
+                                <number>56</number>
+                            </pitch>
+                            <pitch>
+                                <number>62</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <pitch>
+                                <number>59</number>
+                            </pitch>
+                            <pitch>
+                                <number>62</number>
+                            </pitch>
+                            <pitch>
+                                <number>65</number>
+                            </pitch>
+                        </chord>
+                    </harmony>
+                </product>
+                <product>
+                    <id>Accompaniment 1-1</id>
+                </product>
+                <product>
+                    <texture>
+                        <id>texture-accompaniment</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch>
+                                <number>38</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <id>chord-1-1-2</id>
+                        </chord>
+                        <chord>
+                            <id>chord-1-1-3</id>
+                        </chord>
+                    </harmony>
+                </product>
+            </concatenate>
+            <product>
+                <texture>
+                    <id>texture-melody</id>
+                </texture>
+                <harmony>
+                    <chord>
+                        <pitch>
+                            <number>70</number>
+                        </pitch>
+                    </chord>
+                    <chord>
+                        <pitch>
+                            <number>75</number>
+                        </pitch>
+                    </chord>
+                    <chord>
+                        <pitch>
+                            <number>77</number>
+                        </pitch>
+                    </chord>
+                    <chord>
+                        <pitch>
+                            <number>79</number>
+                        </pitch>
+                    </chord>
+                </harmony>
+            </product>
+        </parallel>
+    </harmonic-texture>
+</score-tree>
