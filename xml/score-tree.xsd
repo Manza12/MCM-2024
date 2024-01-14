@@ -197,13 +197,14 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="harmonic-texture">
+                <xs:element name="instrument" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:choice>
                             <xs:element ref="product"/>
                             <xs:element ref="parallel"/>
                             <xs:element ref="concatenate"/>
                         </xs:choice>
+                        <xs:attribute name="name" type="xs:string"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>

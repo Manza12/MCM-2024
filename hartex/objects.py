@@ -186,6 +186,24 @@ class Harmony:
 
 
 # Time-Frequency
+class Note:
+    def __init__(self, pitch: Pitch, onset: frac, duration: frac):
+        self.pitch = pitch
+        self.onset = onset
+        self.duration = duration
+
+    def __eq__(self, other):
+        if not isinstance(other, Note):
+            return False
+        return self.pitch == other.pitch and self.onset == other.onset and self.duration == other.duration
+
+    def __hash__(self):
+        return hash((self.pitch, self.onset, self.duration))
+
+    def __str__(self):
+        return f'({self.pitch}, {self.onset}, {self.duration})'
+
+
 class HarmonicTexture:
     @multimethod
     def __init__(self):
@@ -240,19 +258,7 @@ class HarmonicTexture:
         return midi
 
 
-class Note:
-    def __init__(self, pitch: Pitch, onset: frac, duration: frac):
-        self.pitch = pitch
-        self.onset = onset
-        self.duration = duration
-
-    def __eq__(self, other):
-        if not isinstance(other, Note):
-            return False
-        return self.pitch == other.pitch and self.onset == other.onset and self.duration == other.duration
-
-    def __hash__(self):
-        return hash((self.pitch, self.onset, self.duration))
-
-    def __str__(self):
-        return f'({self.pitch}, {self.onset}, {self.duration})'
+class Instrument:
+    def __init__(self, name: str, harmonic_texture: HarmonicTexture):
+        self.name = name
+        self.harmonic_texture = harmonic_texture
