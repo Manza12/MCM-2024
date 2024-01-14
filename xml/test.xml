@@ -6,6 +6,11 @@
         <beat num="1" den="8"/>
         <bpm>72</bpm>
     </tempo>
+    <time-signature>
+        <numerator>12</numerator>
+        <denominator>8</denominator>
+    </time-signature>
+    <anacrusis num="1" den="8"/>
     <textures>
         <texture id="texture-accompaniment">
             <rhythm>

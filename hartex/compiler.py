@@ -12,6 +12,8 @@ class ScoreTree:
         self.title = ''
         self.composer = ''
         self.tempo = ScoreTree.Tempo(frac(1, 4), 100)
+        self.time_signature = ScoreTree.TimeSignature(4, 4)
+        self.anacrusis = frac(0, 1)
 
         # Objects
         self.objects = {}
@@ -32,6 +34,14 @@ class ScoreTree:
         def __str__(self):
             return f'{self.beat} = {self.bpm}'
 
+    class TimeSignature:
+        def __init__(self, numerator: int, denominator: int):
+            self.numerator = numerator
+            self.denominator = denominator
+
+        def __str__(self):
+            return f'{self.numerator}/{self.denominator}'
+
     def to_midi(self, instrument: str = 'Acoustic Grand Piano', velocity: int = 50):
         bpm = self.tempo.bpm * self.tempo.beat / frac(1, 4)
         return self.harmonic_texture.to_midi(instrument, velocity, bpm)
@@ -48,6 +58,8 @@ class ScoreTree:
             self.composer = element.text
         elif element.tag == 'tempo':
             self.tempo = ScoreTree.Tempo(self.decode(element[0]), int(element[1].text))
+        elif element.tag == 'time-signature':
+            self.time_signature = ScoreTree.TimeSignature(int(element[0].text), int(element[1].text))
         # Ids
         elif element.tag in ['hits', 'rhythms', 'textures', 'pitches', 'chords', 'harmonies']:
             for child in element:
@@ -56,7 +68,7 @@ class ScoreTree:
         elif element.tag == 'id':
             return self.objects[element.text]
         # Objects
-        elif element.tag == 'onset' or element.tag == 'duration' or element.tag == 'beat':
+        elif element.tag in ['onset', 'duration', 'beat', 'anacrusis']:
             return frac(int(element.attrib['num']), int(element.attrib['den']))
         elif element.tag == 'hit':
             # Check if it's a reference
