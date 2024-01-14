@@ -28,19 +28,19 @@
             </rhythm>
         </texture>
         <texture id="texture-melody">
-            <rhythm>
+            <rhythm id="texture-melody-1">
                 <hit>
                     <onset num="-1" den="8"/>
                     <duration num="1" den="8"/>
                 </hit>
             </rhythm>
-            <rhythm>
+            <rhythm id="texture-melody-2">
                 <hit>
                     <onset num="9" den="8"/>
                     <duration num="1" den="4"/>
                 </hit>
             </rhythm>
-            <rhythm>
+            <rhythm id="texture-melody-3">
                 <hit>
                     <onset num="1" den="2"/>
                     <duration num="1" den="8"/>
@@ -50,7 +50,7 @@
                     <duration num="3" den="8"/>
                 </hit>
             </rhythm>
-            <rhythm>
+            <rhythm id="texture-melody-4">
                 <hit>
                     <onset num="0" den="2"/>
                     <duration num="1" den="2"/>
@@ -60,11 +60,17 @@
                     <duration num="1" den="8"/>
                 </hit>
             </rhythm>
+            <rhythm id="texture-melody-5">
+                <hit>
+                    <onset num="11" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+            </rhythm>
         </texture>
     </textures>
     <harmonic-texture>
         <parallel>
-            <concatenate>
+            <concatenate id="Accompaniment 1">
                 <product id="Accompaniment 1-1">
                     <texture>
                         <id>texture-accompaniment</id>
@@ -96,7 +102,7 @@
                         </chord>
                     </harmony>
                 </product>
-                <product>
+                <product id="Accompaniment 1-2">
                     <texture>
                         <id>texture-accompaniment</id>
                     </texture>
@@ -127,10 +133,10 @@
                         </chord>
                     </harmony>
                 </product>
-                <product>
+                <product id="Accompaniment 1-3">
                     <id>Accompaniment 1-1</id>
                 </product>
-                <product>
+                <product id="Accompaniment 1-4">
                     <texture>
                         <id>texture-accompaniment</id>
                     </texture>
@@ -148,34 +154,93 @@
                         </chord>
                     </harmony>
                 </product>
+                <product id="Accompaniment 1-5">
+                    <texture>
+                        <id>texture-accompaniment</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch>
+                                <number>36</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <pitch>
+                                <number>55</number>
+                            </pitch>
+                            <pitch>
+                                <number>64</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <pitch>
+                                <number>58</number>
+                            </pitch>
+                            <pitch>
+                                <number>64</number>
+                            </pitch>
+                            <pitch>
+                                <number>67</number>
+                            </pitch>
+                        </chord>
+                    </harmony>
+                </product>
             </concatenate>
-            <product>
-                <texture>
-                    <id>texture-melody</id>
-                </texture>
-                <harmony>
-                    <chord>
-                        <pitch>
-                            <number>70</number>
-                        </pitch>
-                    </chord>
-                    <chord>
-                        <pitch>
-                            <number>75</number>
-                        </pitch>
-                    </chord>
-                    <chord>
-                        <pitch>
-                            <number>77</number>
-                        </pitch>
-                    </chord>
-                    <chord>
-                        <pitch>
-                            <number>79</number>
-                        </pitch>
-                    </chord>
-                </harmony>
-            </product>
+            <concatenate id="Meldoy-1">
+                <product id="Meldoy-1-1">
+                    <texture>
+                        <id>texture-melody</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch>
+                                <number>70</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <pitch>
+                                <number>75</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <pitch>
+                                <number>77</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <pitch>
+                                <number>79</number>
+                            </pitch>
+                        </chord>
+                        <chord/>
+                    </harmony>
+                </product>
+                <product id="Meldoy-1-2">
+                    <texture>
+                        <rhythm>
+                            <id>texture-melody-1</id>
+                        </rhythm>
+                        <rhythm>
+                            <hit>
+                                <onset num="0" den="8"/>
+                                <duration num="1" den="4"/>
+                            </hit>
+                        </rhythm>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch>
+                                <number>70</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <pitch>
+                                <number>79</number>
+                            </pitch>
+                        </chord>
+                    </harmony>
+                </product>
+            </concatenate>
         </parallel>
     </harmonic-texture>
 </score-tree>
