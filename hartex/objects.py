@@ -28,6 +28,9 @@ class Hit:
             return False
         return self.onset == other.onset and self.duration == other.duration
 
+    def __str__(self):
+        return f"({self.onset}, {self.duration})"
+
 
 class Rhythm:
     @multimethod
@@ -53,6 +56,9 @@ class Rhythm:
         if not isinstance(other, Rhythm):
             return False
         return self.hits == other.hits
+
+    def __str__(self):
+        return '{' + f"{', '.join([str(h) for h in self.hits])}" + '}'
 
 
 class Texture:
@@ -85,6 +91,9 @@ class Texture:
     def __len__(self):
         return len(self.rhythms)
 
+    def __str__(self):
+        return f"[{', '.join([str(r) for r in self.rhythms])}]"
+
     @property
     def endpoint(self) -> frac:
         result = frac(0)
@@ -114,6 +123,9 @@ class Pitch:
     def __hash__(self):
         return hash(self.number)
 
+    def __str__(self):
+        return str(self.number)
+
 
 class Chord:
     @multimethod
@@ -136,6 +148,9 @@ class Chord:
         if not isinstance(other, Chord):
             return False
         return self.pitches == other.pitches
+
+    def __str__(self):
+        return '{' + f"{', '.join([str(p) for p in self.pitches])}" + '}'
 
 
 class Harmony:
@@ -165,6 +180,9 @@ class Harmony:
 
     def __len__(self):
         return len(self.chords)
+
+    def __str__(self):
+        return f"[{', '.join([str(c) for c in self.chords])}]"
 
 
 # Time-Frequency
@@ -237,4 +255,4 @@ class Note:
         return hash((self.pitch, self.onset, self.duration))
 
     def __str__(self):
-        return f'{self.pitch} @ {self.onset} for {self.duration}'
+        return f'({self.pitch}, {self.onset}, {self.duration})'

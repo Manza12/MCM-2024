@@ -18,9 +18,18 @@ h_4 = Harmony({38}, {55, 63}, {58, 63, 67})
 h_mel = Harmony({70}, {75}, {77}, {79})
 
 ht = ((t_acc * h_13) - (t_acc * h_2) - (t_acc * h_13) - (t_acc * h_4)) | (t_mel * h_mel)
+
+# Print
+print('Notes:')
 fragment = ht.notes()
 for note in fragment:
     print(note)
+
+print('\nTexture:')
+print(ht.texture)
+
+print('\nHarmony:')
+print(ht.harmony)
 
 midi = ht.to_midi(bpm=36)
 midi.write('data/test_script.mid')
