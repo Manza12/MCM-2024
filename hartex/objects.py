@@ -34,6 +34,10 @@ class Hit:
 
 class Rhythm:
     @multimethod
+    def __init__(self):
+        self.hits = set()
+
+    @multimethod
     def __init__(self, rhythm: 'Rhythm'):
         self.hits = {h for h in rhythm.hits}
 
@@ -43,7 +47,12 @@ class Rhythm:
 
     @multimethod
     def __init__(self, *hits: Union[Hit, Tuple[frac, frac]]):
-        self.hits = {Hit(h) for h in hits}
+        if len(hits) == 0:
+            self.hits = set()
+        elif len(hits) == 1:
+            self.hits = hits[0]
+        else:
+            self.hits = {Hit(h) for h in hits}
 
     @multimethod
     def __init__(self, hits: Set[Tuple[frac, frac]]):
@@ -62,6 +71,10 @@ class Rhythm:
 
 
 class Texture:
+    @multimethod
+    def __init__(self):
+        self.rhythms = []
+
     @multimethod
     def __init__(self, texture: 'Texture'):
         self.rhythms = [r for r in texture.rhythms]
@@ -129,16 +142,20 @@ class Pitch:
 
 class Chord:
     @multimethod
+    def __init__(self):
+        self.pitches = set()
+
+    @multimethod
     def __init__(self, chord: 'Chord'):
         self.pitches = {p for p in chord.pitches}
 
     @multimethod
     def __init__(self, pitches: Set[Pitch]):
         self.pitches = pitches
-
-    @multimethod
-    def __init__(self, *pitches: Union[Pitch, int]):
-        self.pitches = {Pitch(p) for p in pitches}
+    #
+    # @multimethod
+    # def __init__(self, *pitches: Union[Pitch, int]):
+    #     self.pitches = {Pitch(p) for p in pitches}
 
     @multimethod
     def __init__(self, pitches: Set[int]):
@@ -154,6 +171,10 @@ class Chord:
 
 
 class Harmony:
+    @multimethod
+    def __init__(self):
+        self.chords = []
+
     @multimethod
     def __init__(self, harmony: 'Harmony'):
         self.chords = [c for c in harmony.chords]
@@ -185,23 +206,92 @@ class Harmony:
         return f"[{', '.join([str(c) for c in self.chords])}]"
 
 
+# Instruments
+class Instrument:
+    def __init__(self, name: str):
+        self.name = name
+
+    def __eq__(self, other):
+        if not isinstance(other, Instrument):
+            return False
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __str__(self):
+        return self.name
+
+
+class Group:
+    @multimethod
+    def __init__(self):
+        self.instruments = set()
+
+    @multimethod
+    def __init__(self, group: 'Group'):
+        self.instruments = {i for i in group.instruments}
+
+    @multimethod
+    def __init__(self, instruments: Set[Instrument]):
+        self.instruments = instruments
+
+    def __eq__(self, other):
+        if not isinstance(other, Group):
+            return False
+        return self.instruments == other.instruments
+
+    def __str__(self):
+        return '{' + f"{', '.join([str(i) for i in self.instruments])}" + '}'
+
+
+class Instrumentation:
+    @multimethod
+    def __init__(self):
+        self.groups = []
+
+    @multimethod
+    def __init__(self, instrumentation: 'Instrumentation'):
+        self.groups = [g for g in instrumentation.groups]
+
+    @multimethod
+    def __init__(self, groups: List[Group]):
+        self.groups = groups
+
+    def __eq__(self, other):
+        if not isinstance(other, Instrumentation):
+            return False
+        return self.groups == other.groups
+
+    def __add__(self, other: 'Instrumentation') -> 'Instrumentation':
+        return Instrumentation(self.groups + other.groups)
+
+    def __str__(self):
+        return f"[{', '.join([str(g) for g in self.groups])}]"
+
+
 # Time-Frequency
 class Note:
-    def __init__(self, pitch: Pitch, onset: frac, duration: frac):
+    def __init__(self, pitch: Pitch, onset: frac, duration: frac, instrument: Instrument = None):
         self.pitch = pitch
         self.onset = onset
         self.duration = duration
+        self.instrument = instrument
 
     def __eq__(self, other):
         if not isinstance(other, Note):
             return False
-        return self.pitch == other.pitch and self.onset == other.onset and self.duration == other.duration
+        same_pitch = self.pitch == other.pitch
+        same_onset = self.onset == other.onset
+        same_duration = self.duration == other.duration
+        same_instrument = self.instrument == other.instrument
+        return same_pitch and same_onset and same_duration and same_instrument
 
     def __hash__(self):
-        return hash((self.pitch, self.onset, self.duration))
+        return hash((self.pitch, self.onset, self.duration, self.instrument))
 
     def __str__(self):
-        return f'({self.pitch}, {self.onset}, {self.duration})'
+        return f"({self.pitch}, {self.onset}, {self.duration}, {self.instrument})"
 
 
 class HarmonicTexture:
@@ -209,36 +299,52 @@ class HarmonicTexture:
     def __init__(self):
         self.texture = Texture()
         self.harmony = Harmony()
+        self.instrumentation = Instrumentation()
 
     @multimethod
     def __init__(self, harmonic_texture: 'HarmonicTexture'):
         self.texture = Texture(harmonic_texture.texture)
         self.harmony = Harmony(harmonic_texture.harmony)
+        self.instrumentation = Instrumentation(harmonic_texture.instrumentation)
 
     @multimethod
-    def __init__(self, texture: Texture, harmony: Harmony):
+    def __init__(self, texture: Texture, harmony: Harmony, instrumentation: Instrumentation = None):
         if len(texture) != len(harmony):
             warnings.warn("Texture and harmony have different lengths")
+        if instrumentation is None:
+            instrumentation = Instrumentation([Group() for _ in range(len(texture))])
+        else:
+            if len(instrumentation.groups) != len(texture):
+                warnings.warn("Texture and instrumentation have different lengths")
         self.texture = texture
         self.harmony = harmony
+        self.instrumentation = instrumentation
 
     def __or__(self, other: 'HarmonicTexture') -> 'HarmonicTexture':
-        return HarmonicTexture(self.texture + other.texture, self.harmony + other.harmony)
+        return HarmonicTexture(self.texture + other.texture,
+                               self.harmony + other.harmony,
+                               self.instrumentation + other.instrumentation)
 
     def __sub__(self, other: 'HarmonicTexture') -> 'HarmonicTexture':
-        return HarmonicTexture(self.texture - other.texture, self.harmony + other.harmony)
+        return HarmonicTexture(self.texture - other.texture,
+                               self.harmony + other.harmony,
+                               self.instrumentation + other.instrumentation)
 
     def __eq__(self, other):
         if not isinstance(other, HarmonicTexture):
             return False
-        return self.texture == other.texture and self.harmony == other.harmony
+        same_texture = self.texture == other.texture
+        same_harmony = self.harmony == other.harmony
+        same_instrumentation = self.instrumentation == other.instrumentation
+        return same_texture and same_harmony and same_instrumentation
 
     def notes(self) -> Set['Note']:
         result = set()
-        for rhythm, chord in zip(self.texture.rhythms, self.harmony.chords):
+        for rhythm, chord, group in zip(self.texture.rhythms, self.harmony.chords, self.instrumentation.groups):
             for hit in rhythm.hits:
                 for pitch in chord.pitches:
-                    result.add(Note(pitch, hit.onset, hit.duration))
+                    for instrument in group.instruments:
+                        result.add(Note(pitch, hit.onset, hit.duration, instrument))
         return result
 
     def to_midi(self, instrument='Acoustic Grand Piano', velocity=64, bpm=100):
@@ -256,9 +362,3 @@ class HarmonicTexture:
             track.notes.append(note)
         midi.instruments.append(track)
         return midi
-
-
-class Instrument:
-    def __init__(self, name: str, harmonic_texture: HarmonicTexture):
-        self.name = name
-        self.harmonic_texture = harmonic_texture

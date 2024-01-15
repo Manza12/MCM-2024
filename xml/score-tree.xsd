@@ -86,6 +86,41 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- Instruments -->
+    <xs:element name="instrument">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:element name="name" type="xs:string"/>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="group">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence>
+                    <xs:element ref="instrument" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="instrumentation">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="id" type="xs:string"/>
+                <xs:sequence>
+                    <xs:element ref="group" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="id"/>
+        </xs:complexType>
+    </xs:element>
+
     <!-- Operators -->
     <xs:element name="product">
         <xs:complexType>
@@ -94,6 +129,7 @@
                 <xs:sequence>
                     <xs:element ref="texture"/>
                     <xs:element ref="harmony"/>
+                    <xs:element ref="instrumentation" minOccurs="0"/>
                 </xs:sequence>
             </xs:choice>
             <xs:attribute name="id"/>
@@ -197,14 +233,34 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="instrument" maxOccurs="unbounded">
+                <xs:element name="instruments" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="instrument" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="groups" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="group" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="instrumentations" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="instrumentation" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="harmonic-texture" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:choice>
                             <xs:element ref="product"/>
                             <xs:element ref="parallel"/>
                             <xs:element ref="concatenate"/>
                         </xs:choice>
-                        <xs:attribute name="name" type="xs:string"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>

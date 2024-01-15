@@ -1,6 +1,10 @@
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from .objects import frac, Hit, Rhythm, Texture, Pitch, Chord, Harmony, HarmonicTexture, Instrument
+from .objects import frac, \
+    Hit, Rhythm, Texture, \
+    Pitch, Chord, Harmony, \
+    Instrument, Group, Instrumentation, \
+    HarmonicTexture
 
 
 class ScoreTree:
@@ -23,7 +27,7 @@ class ScoreTree:
         self.root = self.tree.getroot()
 
         # Decode XML
-        self.instruments = []
+        self.harmonic_texture = None
         self.decode(self.root)
 
     class Tempo:
@@ -51,16 +55,30 @@ class ScoreTree:
 
         midi = pretty_midi.PrettyMIDI()
 
-        for instrument in self.instruments:
-            notes = instrument.harmonic_texture.notes()
+        notes = self.harmonic_texture.notes()
+
+        # Get instruments
+        instruments = set()
+        for note in notes:
+            print(note)
+            instruments.add(note.instrument)
+
+        # Add instruments
+        tracks = {}
+        for instrument in instruments:
             instrument_program = pretty_midi.instrument_name_to_program(instrument.name)
             track = pretty_midi.Instrument(program=instrument_program)
-            for note in notes:
-                onset_s = float((note.onset - start) * 240 / bpm)
-                duration_s = float(note.duration * 240 / bpm)
-                end_s = onset_s + duration_s
-                note = pretty_midi.Note(velocity=velocity, pitch=note.pitch.number, start=onset_s, end=end_s)
-                track.notes.append(note)
+            tracks[instrument] = track
+
+        for note in notes:
+            instrument = note.instrument
+            onset_s = float((note.onset - start) * 240 / bpm)
+            duration_s = float(note.duration * 240 / bpm)
+            end_s = onset_s + duration_s
+            note = pretty_midi.Note(velocity=velocity, pitch=note.pitch.number, start=onset_s, end=end_s)
+            tracks[instrument].notes.append(note)
+
+        for track in tracks.values():
             midi.instruments.append(track)
         return midi
 
@@ -81,7 +99,9 @@ class ScoreTree:
         elif element.tag == 'anacrusis':
             self.anacrusis = frac(int(element.attrib['num']), int(element.attrib['den']))
         # Ids
-        elif element.tag in ['hits', 'rhythms', 'textures', 'pitches', 'chords', 'harmonies']:
+        elif element.tag in ['hits', 'rhythms', 'textures',
+                             'pitches', 'chords', 'harmonies',
+                             'instruments', 'groups', 'instrumentations']:
             for child in element:
                 assert child.attrib.get('id') is not None
                 self.objects[child.attrib['id']] = self.decode(child)
@@ -111,11 +131,11 @@ class ScoreTree:
                 return self.decode(element[0])
 
             # Decode rhythm
-            hits = []
+            hits = set()
             for child in element:
                 hit = self.decode(child)
-                hits.append(hit)
-            rhythm = Rhythm(*hits)
+                hits.add(hit)
+            rhythm = Rhythm(hits)
 
             # Save the rhythm if it has an id
             if element.attrib.get('id') is not None:
@@ -161,11 +181,14 @@ class ScoreTree:
                 return self.decode(element[0])
 
             # Decode chord
-            pitches = []
+            pitches = set()
             for child in element:
                 pitch = self.decode(child)
-                pitches.append(pitch)
-            chord = Chord(*pitches)
+                pitches.add(pitch)
+            if len(pitches) == 0:
+                chord = Chord()
+            else:
+                chord = Chord(pitches)
 
             # Save the chord if it has an id
             if element.attrib.get('id') is not None:
@@ -189,6 +212,42 @@ class ScoreTree:
                 self.objects[element.attrib['id']] = harmony
 
             return harmony
+        elif element.tag == 'instrument':
+            return Instrument(element[0].text)
+        elif element.tag == 'group':
+            # Check if it's a reference
+            if len(element) != 0 and element[0].tag == 'id':
+                return self.decode(element[0])
+
+            # Decode group
+            instruments = set()
+            for child in element:
+                instrument = self.decode(child)
+                instruments.add(instrument)
+            group = Group(instruments)
+
+            # Save the group if it has an id
+            if element.attrib.get('id') is not None:
+                self.objects[element.attrib['id']] = group
+
+            return group
+        elif element.tag == 'instrumentation':
+            # Check if it's a reference
+            if len(element) != 0 and element[0].tag == 'id':
+                return self.decode(element[0])
+
+            # Decode instrumentation
+            groups = []
+            for child in element:
+                group = self.decode(child)
+                groups.append(group)
+            instrumentation = Instrumentation(groups)
+
+            # Save the instrumentation if it has an id
+            if element.attrib.get('id') is not None:
+                self.objects[element.attrib['id']] = instrumentation
+
+            return instrumentation
         # Operators
         elif element.tag == 'product':
             # Check if it's a reference
@@ -198,7 +257,12 @@ class ScoreTree:
             # Decode product
             texture = self.decode(element[0])
             harmony = self.decode(element[1])
-            harmonic_texture = HarmonicTexture(texture, harmony)
+            if len(element) == 3:
+                instrumentation = self.decode(element[2])
+            else:
+                instrumentation = Instrumentation(
+                    [Group({Instrument('Acoustic Grand Piano')}) for _ in range(len(texture))])
+            harmonic_texture = HarmonicTexture(texture, harmony, instrumentation)
 
             # Save the harmonic texture if it has an id
             if element.attrib.get('id') is not None:
@@ -235,11 +299,9 @@ class ScoreTree:
                 self.objects[element.attrib['id']] = harmonic_texture
 
             return harmonic_texture
-        elif element.tag == 'instrument':
-            name = element.attrib['name']
+        elif element.tag == 'harmonic-texture':
             harmonic_texture = self.decode(element[0])
-            instrument = Instrument(name, harmonic_texture)
-            self.instruments.append(instrument)
+            self.harmonic_texture = harmonic_texture
         # Not implemented
         else:
             raise NotImplementedError("Tag '%s' not implemented." % element.tag)
