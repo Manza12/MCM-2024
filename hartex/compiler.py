@@ -4,7 +4,7 @@ from .objects import frac, \
     Hit, Rhythm, Texture, \
     Pitch, Chord, Harmony, \
     Instrument, Group, Instrumentation, \
-    HarmonicTexture
+    TensorContraction
 
 
 class ScoreTree:
@@ -27,7 +27,7 @@ class ScoreTree:
         self.root = self.tree.getroot()
 
         # Decode XML
-        self.harmonic_texture = None
+        self.ast = None
         self.decode(self.root)
 
     class Tempo:
@@ -55,7 +55,7 @@ class ScoreTree:
 
         midi = pretty_midi.PrettyMIDI()
 
-        notes = self.harmonic_texture.notes()
+        notes = self.ast.notes()
 
         # Get instruments
         instruments = set()
@@ -262,7 +262,7 @@ class ScoreTree:
             else:
                 instrumentation = Instrumentation(
                     [Group({Instrument('Acoustic Grand Piano')}) for _ in range(len(texture))])
-            harmonic_texture = HarmonicTexture(texture, harmony, instrumentation)
+            harmonic_texture = TensorContraction(texture, harmony, instrumentation)
 
             # Save the harmonic texture if it has an id
             if element.attrib.get('id') is not None:
@@ -275,7 +275,7 @@ class ScoreTree:
                 return self.decode(element[0])
 
             # Decode parallel
-            harmonic_texture = HarmonicTexture()
+            harmonic_texture = TensorContraction()
             for child in element:
                 harmonic_texture = harmonic_texture | self.decode(child)
 
@@ -290,7 +290,7 @@ class ScoreTree:
                 return self.decode(element[0])
 
             # Decode concatenate
-            harmonic_texture = HarmonicTexture()
+            harmonic_texture = TensorContraction()
             for child in element:
                 harmonic_texture = harmonic_texture - self.decode(child)
 
@@ -300,8 +300,8 @@ class ScoreTree:
 
             return harmonic_texture
         elif element.tag == 'harmonic-texture':
-            harmonic_texture = self.decode(element[0])
-            self.harmonic_texture = harmonic_texture
+            ast = self.decode(element[0])
+            self.ast = ast
         # Not implemented
         else:
             raise NotImplementedError("Tag '%s' not implemented." % element.tag)

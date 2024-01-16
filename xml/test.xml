@@ -102,7 +102,7 @@
             </group>
         </instrumentation>
     </instrumentations>
-    <harmonic-texture>
+    <ast>
         <parallel>
             <concatenate id="Accompaniment 1">
                 <product id="Accompaniment 1-1">
@@ -327,5 +327,5 @@
                 </product>
             </concatenate>
         </parallel>
-    </harmonic-texture>
+    </ast>
 </score-tree>

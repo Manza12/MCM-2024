@@ -87,8 +87,8 @@ class Texture:
     def __init__(self, rhythms: List[Rhythm]):
         self.rhythms = rhythms
 
-    def __mul__(self, harmony: 'Harmony') -> 'HarmonicTexture':
-        return HarmonicTexture(self, harmony)
+    def __mul__(self, harmony: 'Harmony') -> 'TensorContraction':
+        return TensorContraction(self, harmony)
 
     def __add__(self, other: 'Texture') -> 'Texture':
         return Texture(self.rhythms + other.rhythms)
@@ -294,7 +294,7 @@ class Note:
         return f"({self.pitch}, {self.onset}, {self.duration}, {self.instrument})"
 
 
-class HarmonicTexture:
+class TensorContraction:
     @multimethod
     def __init__(self):
         self.texture = Texture()
@@ -302,7 +302,7 @@ class HarmonicTexture:
         self.instrumentation = Instrumentation()
 
     @multimethod
-    def __init__(self, harmonic_texture: 'HarmonicTexture'):
+    def __init__(self, harmonic_texture: 'TensorContraction'):
         self.texture = Texture(harmonic_texture.texture)
         self.harmony = Harmony(harmonic_texture.harmony)
         self.instrumentation = Instrumentation(harmonic_texture.instrumentation)
@@ -320,18 +320,18 @@ class HarmonicTexture:
         self.harmony = harmony
         self.instrumentation = instrumentation
 
-    def __or__(self, other: 'HarmonicTexture') -> 'HarmonicTexture':
-        return HarmonicTexture(self.texture + other.texture,
-                               self.harmony + other.harmony,
-                               self.instrumentation + other.instrumentation)
+    def __or__(self, other: 'TensorContraction') -> 'TensorContraction':
+        return TensorContraction(self.texture + other.texture,
+                                 self.harmony + other.harmony,
+                                 self.instrumentation + other.instrumentation)
 
-    def __sub__(self, other: 'HarmonicTexture') -> 'HarmonicTexture':
-        return HarmonicTexture(self.texture - other.texture,
-                               self.harmony + other.harmony,
-                               self.instrumentation + other.instrumentation)
+    def __sub__(self, other: 'TensorContraction') -> 'TensorContraction':
+        return TensorContraction(self.texture - other.texture,
+                                 self.harmony + other.harmony,
+                                 self.instrumentation + other.instrumentation)
 
     def __eq__(self, other):
-        if not isinstance(other, HarmonicTexture):
+        if not isinstance(other, TensorContraction):
             return False
         same_texture = self.texture == other.texture
         same_harmony = self.harmony == other.harmony

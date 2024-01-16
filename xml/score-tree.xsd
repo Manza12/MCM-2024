@@ -254,7 +254,7 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="harmonic-texture" minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="ast" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:choice>
                             <xs:element ref="product"/>

@@ -1,5 +1,5 @@
 import unittest
-from hartex import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, HarmonicTexture
+from hartex import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, TensorContraction
 
 
 class TestObjects(unittest.TestCase):
@@ -41,7 +41,7 @@ class TestObjects(unittest.TestCase):
         texture = Texture(Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}),
                           Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}))
         harmony = Harmony([Chord({Pitch(60), Pitch(64), Pitch(67)}), Chord({Pitch(62), Pitch(65), Pitch(69)})])
-        assert HarmonicTexture(texture, harmony) == texture * harmony
+        assert TensorContraction(texture, harmony) == texture * harmony
 
 
 if __name__ == '__main__':
