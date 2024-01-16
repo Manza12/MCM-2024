@@ -169,7 +169,7 @@
     </xs:element>
 
     <!-- Score -->
-    <xs:element name="score-tree">
+    <xs:element name="score">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="title" type="xs:string" minOccurs="0"/>
