@@ -1,18 +1,18 @@
-from hartex import Texture, Harmony, TensorContraction
+from hartex import Texture, Harmony, Instrumentation, TensorContraction
 
 
-def product(t: Texture, h: Harmony) -> TensorContraction:
-    return t * h
+def contraction(h: Harmony, t: Texture, o: Instrumentation) -> TensorContraction:
+    return TensorContraction(h, t, o)
 
 
-def parallel(*args: TensorContraction) -> TensorContraction:
+def parallelization(*args: TensorContraction) -> TensorContraction:
     harmonic_texture = TensorContraction()
     for arg in args:
         harmonic_texture = harmonic_texture | arg
     return harmonic_texture
 
 
-def concatenate(*args: TensorContraction) -> TensorContraction:
+def concatenation(*args: TensorContraction) -> TensorContraction:
     harmonic_texture = TensorContraction()
     for arg in args:
         harmonic_texture = harmonic_texture - arg

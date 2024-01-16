@@ -46,15 +46,6 @@ class Rhythm:
         self.hits = hits
 
     @multimethod
-    def __init__(self, *hits: Union[Hit, Tuple[frac, frac]]):
-        if len(hits) == 0:
-            self.hits = set()
-        elif len(hits) == 1:
-            self.hits = hits[0]
-        else:
-            self.hits = {Hit(h) for h in hits}
-
-    @multimethod
     def __init__(self, hits: Set[Tuple[frac, frac]]):
         self.hits = {Hit(h) for h in hits}
 
@@ -88,7 +79,7 @@ class Texture:
         self.rhythms = rhythms
 
     def __mul__(self, harmony: 'Harmony') -> 'TensorContraction':
-        return TensorContraction(self, harmony)
+        return TensorContraction(harmony, self, Instrumentation([Group({Instrument("Acoustic Grand Piano")})]))
 
     def __add__(self, other: 'Texture') -> 'Texture':
         return Texture(self.rhythms + other.rhythms)
@@ -297,18 +288,18 @@ class Note:
 class TensorContraction:
     @multimethod
     def __init__(self):
-        self.texture = Texture()
         self.harmony = Harmony()
+        self.texture = Texture()
         self.instrumentation = Instrumentation()
 
     @multimethod
-    def __init__(self, harmonic_texture: 'TensorContraction'):
-        self.texture = Texture(harmonic_texture.texture)
-        self.harmony = Harmony(harmonic_texture.harmony)
-        self.instrumentation = Instrumentation(harmonic_texture.instrumentation)
+    def __init__(self, tensor_contraction: 'TensorContraction'):
+        self.harmony = Harmony(tensor_contraction.harmony)
+        self.texture = Texture(tensor_contraction.texture)
+        self.instrumentation = Instrumentation(tensor_contraction.instrumentation)
 
     @multimethod
-    def __init__(self, texture: Texture, harmony: Harmony, instrumentation: Instrumentation = None):
+    def __init__(self, harmony: Harmony, texture: Texture, instrumentation: Instrumentation = None):
         if len(texture) != len(harmony):
             warnings.warn("Texture and harmony have different lengths")
         if instrumentation is None:
@@ -321,13 +312,13 @@ class TensorContraction:
         self.instrumentation = instrumentation
 
     def __or__(self, other: 'TensorContraction') -> 'TensorContraction':
-        return TensorContraction(self.texture + other.texture,
-                                 self.harmony + other.harmony,
+        return TensorContraction(self.harmony + other.harmony,
+                                 self.texture + other.texture,
                                  self.instrumentation + other.instrumentation)
 
     def __sub__(self, other: 'TensorContraction') -> 'TensorContraction':
-        return TensorContraction(self.texture - other.texture,
-                                 self.harmony + other.harmony,
+        return TensorContraction(self.harmony + other.harmony,
+                                 self.texture - other.texture,
                                  self.instrumentation + other.instrumentation)
 
     def __eq__(self, other):

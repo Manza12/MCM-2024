@@ -262,44 +262,44 @@ class ScoreTree:
             else:
                 instrumentation = Instrumentation(
                     [Group({Instrument('Acoustic Grand Piano')}) for _ in range(len(texture))])
-            harmonic_texture = TensorContraction(texture, harmony, instrumentation)
+            tensor_contraction = TensorContraction(harmony, texture, instrumentation)
 
             # Save the harmonic texture if it has an id
             if element.attrib.get('id') is not None:
-                self.objects[element.attrib['id']] = harmonic_texture
+                self.objects[element.attrib['id']] = tensor_contraction
 
-            return harmonic_texture
+            return tensor_contraction
         elif element.tag == 'parallel':
             # Check if it's a reference
             if len(element) != 0 and element[0].tag == 'id':
                 return self.decode(element[0])
 
             # Decode parallel
-            harmonic_texture = TensorContraction()
+            tensor_contraction = TensorContraction()
             for child in element:
-                harmonic_texture = harmonic_texture | self.decode(child)
+                tensor_contraction = tensor_contraction | self.decode(child)
 
             # Save the harmonic texture if it has an id
             if element.attrib.get('id') is not None:
-                self.objects[element.attrib['id']] = harmonic_texture
+                self.objects[element.attrib['id']] = tensor_contraction
 
-            return harmonic_texture
+            return tensor_contraction
         elif element.tag == 'concatenate':
             # Check if it's a reference
             if len(element) != 0 and element[0].tag == 'id':
                 return self.decode(element[0])
 
             # Decode concatenate
-            harmonic_texture = TensorContraction()
+            tensor_contraction = TensorContraction()
             for child in element:
-                harmonic_texture = harmonic_texture - self.decode(child)
+                tensor_contraction = tensor_contraction - self.decode(child)
 
             # Save the harmonic texture if it has an id
             if element.attrib.get('id') is not None:
-                self.objects[element.attrib['id']] = harmonic_texture
+                self.objects[element.attrib['id']] = tensor_contraction
 
-            return harmonic_texture
-        elif element.tag == 'harmonic-texture':
+            return tensor_contraction
+        elif element.tag == 'ast':
             ast = self.decode(element[0])
             self.ast = ast
         # Not implemented

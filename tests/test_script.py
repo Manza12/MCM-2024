@@ -1,15 +1,15 @@
 from hartex import frac, Hit, Harmony, Rhythm, Texture
 
 t_acc = Texture(
-    Rhythm(Hit(frac('0'), frac('1/8'))),
-    Rhythm(Hit(frac('1/8'), frac('1/8'))),
-    Rhythm(Hit(frac('1/4'), frac('1/8'))),
+    Rhythm({Hit(frac('0'), frac('1/8'))}),
+    Rhythm({Hit(frac('1/8'), frac('1/8'))}),
+    Rhythm({Hit(frac('1/4'), frac('1/8'))}),
 )
 t_mel = Texture(
-    Rhythm(Hit(frac('-1/8'), frac('1/8'))),
-    Rhythm(Hit(frac('9/8'), frac('1/4'))),
-    Rhythm(Hit(frac('4/8'), frac('1/4')), Hit(frac('6/8'), frac('3/8'))),
-    Rhythm(Hit(frac('0'), frac('1/2')), Hit(frac('5/8'), frac('1/8'))),
+    Rhythm({Hit(frac('-1/8'), frac('1/8'))}),
+    Rhythm({Hit(frac('9/8'), frac('1/4'))}),
+    Rhythm({Hit(frac('4/8'), frac('1/4')), Hit(frac('6/8'), frac('3/8'))}),
+    Rhythm({Hit(frac('0'), frac('1/2')), Hit(frac('5/8'), frac('1/8'))}),
 )
 
 h_13 = Harmony({39}, {55, 63}, {58, 63, 67})

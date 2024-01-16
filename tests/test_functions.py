@@ -1,4 +1,4 @@
-from hartex import frac, Hit, Harmony, Rhythm, Texture, product, parallel, concatenate
+from hartex import frac, Hit, Harmony, Rhythm, Texture, contraction, parallelization, concatenation
 
 
 t_acc = Texture(
@@ -18,26 +18,26 @@ h_2 = Harmony({51}, {56, 62}, {59, 62, 65})
 h_4 = Harmony({38}, {55, 63}, {58, 63, 67})
 h_mel = Harmony({70}, {75}, {77}, {79})
 
-ht = parallel(
-    concatenate(
-        product(
+ht = parallelization(
+    concatenation(
+        contraction(
             t_acc,
             h_13
         ),
-        product(
+        contraction(
             t_acc,
             h_2
         ),
-        product(
+        contraction(
             t_acc,
             h_13
         ),
-        product(
+        contraction(
             t_acc,
             h_4
         )
     ),
-    product(
+    contraction(
         t_mel,
         h_mel
     )

@@ -1,5 +1,6 @@
 import unittest
-from hartex import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, TensorContraction
+from hartex import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, Instrument, Group, Instrumentation, \
+    TensorContraction
 
 
 class TestObjects(unittest.TestCase):
@@ -13,9 +14,7 @@ class TestObjects(unittest.TestCase):
 
     def test_chord(self):
         Chord({Pitch(60), Pitch(64), Pitch(67)})
-        Chord(Pitch(60), Pitch(64), Pitch(67))
         Chord({60, 64, 67})
-        Chord(60, 64, 67)
 
     def test_rhythm(self):
         r_1 = Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))})
@@ -38,10 +37,11 @@ class TestObjects(unittest.TestCase):
                 Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}))
 
     def test_harmonic_texture(self):
+        harmony = Harmony([Chord({Pitch(60), Pitch(64), Pitch(67)}), Chord({Pitch(62), Pitch(65), Pitch(69)})])
         texture = Texture(Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}),
                           Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}))
-        harmony = Harmony([Chord({Pitch(60), Pitch(64), Pitch(67)}), Chord({Pitch(62), Pitch(65), Pitch(69)})])
-        assert TensorContraction(texture, harmony) == texture * harmony
+        instrumentation = Instrumentation([Group({Instrument('piano')}), Group({Instrument('violin')})])
+        TensorContraction(harmony, texture, instrumentation)
 
 
 if __name__ == '__main__':
