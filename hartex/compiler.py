@@ -84,7 +84,7 @@ class ScoreTree:
 
     def decode(self, element: ET.Element):
         # Root
-        if element.tag == 'score-tree':
+        if element.tag == 'score':
             for child in element:
                 self.decode(child)
         # Metadata
@@ -135,7 +135,10 @@ class ScoreTree:
             for child in element:
                 hit = self.decode(child)
                 hits.add(hit)
-            rhythm = Rhythm(hits)
+            if len(hits) == 0:
+                rhythm = Rhythm()
+            else:
+                rhythm = Rhythm(hits)
 
             # Save the rhythm if it has an id
             if element.attrib.get('id') is not None:
