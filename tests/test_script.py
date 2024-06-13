@@ -31,5 +31,6 @@ print(ht.texture)
 print('\nHarmony:')
 print(ht.harmony)
 
+# Write MIDI
 midi = ht.to_midi(bpm=36)
 midi.write('data/test_script.mid')

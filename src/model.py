@@ -2,6 +2,7 @@ import warnings
 from fractions import Fraction as frac
 from typing import Set, List, Tuple, Union
 from multimethod import multimethod
+from .constants import ROMAN_NUMERAL_TO_SHIFT
 
 
 # Time
@@ -15,6 +16,11 @@ class Hit:
     def __init__(self, onset: frac, duration: frac):
         self.onset = onset
         self.duration = duration
+
+    @multimethod
+    def __init__(self, onset: str, duration: str):
+        self.onset = frac(onset)
+        self.duration = frac(duration)
 
     @multimethod
     def __init__(self, onset_duration: Tuple[frac, frac]):
@@ -89,6 +95,9 @@ class Texture:
     def __mul__(self, harmony: 'Harmony') -> 'TensorContraction':
         return TensorContraction(harmony, self, Instrumentation([Section({Instrument("Acoustic Grand Piano")})]))
 
+    def __rmul__(self, harmony: 'Harmony') -> 'TensorContraction':
+        return TensorContraction(harmony, self, Instrumentation([Section({Instrument("Acoustic Grand Piano")})]))
+
     def __add__(self, other: 'Texture') -> 'Texture':
         return Texture(self.rhythms + other.rhythms)
 
@@ -127,6 +136,22 @@ class Pitch:
     def __init__(self, number: int):
         self.number = number
 
+    @multimethod
+    def __add__(self, other: 'Pitch') -> 'Pitch':
+        return Pitch(self.number + other.number)
+
+    @multimethod
+    def __add__(self, other: 'Chord') -> 'Chord':
+        return Chord.__radd__(other, self)
+
+    @multimethod
+    def __add__(self, other: 'Harmony') -> 'Harmony':
+        return Harmony.__radd__(other, self)
+
+    @multimethod
+    def __add__(self, other: 'TensorContraction') -> 'TensorContraction':
+        return TensorContraction.__radd__(other, self)
+
     def __eq__(self, other):
         if not isinstance(other, Pitch):
             return False
@@ -151,14 +176,17 @@ class Chord:
     @multimethod
     def __init__(self, pitches: Set[Pitch]):
         self.pitches = pitches
-    #
-    # @multimethod
-    # def __init__(self, *pitches: Union[Pitch, int]):
-    #     self.pitches = {Pitch(p) for p in pitches}
+
+    @multimethod
+    def __init__(self, *pitches: Pitch):
+        self.pitches = set(pitches)
 
     @multimethod
     def __init__(self, pitches: Set[int]):
         self.pitches = {Pitch(p) for p in pitches}
+
+    def __radd__(self, other: Pitch):
+        return Chord({other + p for p in self.pitches})
 
     def __eq__(self, other):
         if not isinstance(other, Chord):
@@ -167,6 +195,15 @@ class Chord:
 
     def __str__(self):
         return '{' + f"{', '.join([str(p) for p in self.pitches])}" + '}'
+
+    @classmethod
+    def from_roman_numeral(cls, roman_numeral: str, inversion: int = 0, octave: int = 0) -> 'Chord':
+        try:
+            shifts = ROMAN_NUMERAL_TO_SHIFT[roman_numeral]
+        except KeyError:
+            raise ValueError(f"Roman numeral: {roman_numeral} not found.")
+
+        return cls({Pitch(p + 12 * octave) for p in shifts})
 
 
 class Harmony:
@@ -183,6 +220,10 @@ class Harmony:
         self.chords = chords
 
     @multimethod
+    def __init__(self, *chords: Chord):
+        self.chords = list(chords)
+
+    @multimethod
     def __init__(self, chords: List[Set[int]]):
         self.chords = [Chord(c) for c in chords]
 
@@ -192,6 +233,9 @@ class Harmony:
 
     def __add__(self, other: 'Harmony') -> 'Harmony':
         return Harmony(self.chords + other.chords)
+
+    def __radd__(self, other: Pitch) -> 'Harmony':
+        return Harmony([other + chord for chord in self.chords])
 
     def __eq__(self, other):
         if not isinstance(other, Harmony):
@@ -203,6 +247,11 @@ class Harmony:
 
     def __str__(self):
         return f"[{', '.join([str(c) for c in self.chords])}]"
+
+    @classmethod
+    def from_chord(cls, chord: Chord):
+        ordered_pitches = sorted(chord.pitches, key=lambda p: p.number)
+        return Harmony([Chord(c) for c in ordered_pitches])
 
 
 # Instruments
@@ -319,7 +368,7 @@ class TensorContraction:
         if len(texture) != len(harmony):
             warnings.warn("Texture and harmony have different lengths")
         if instrumentation is None:
-            instrumentation = Instrumentation([Section() for _ in range(len(texture))])
+            instrumentation = Instrumentation(*[Section() for _ in range(len(texture))])
         else:
             if len(instrumentation.sections) != len(texture):
                 warnings.warn("Texture and instrumentation have different lengths")
@@ -337,6 +386,11 @@ class TensorContraction:
                                  self.texture - other.texture,
                                  self.instrumentation + other.instrumentation)
 
+    def __radd__(self, other: Pitch) -> 'TensorContraction':
+        return TensorContraction(other + self.harmony,
+                                 self.texture,
+                                 self.instrumentation)
+
     def __eq__(self, other):
         if not isinstance(other, TensorContraction):
             return False
@@ -353,6 +407,9 @@ class TensorContraction:
                     for instrument in group.instruments:
                         result.add(Note(pitch, hit.onset, hit.duration, instrument))
         return result
+
+    def ordered_notes(self) -> List['Note']:
+        return sorted(self.notes(), key=lambda note: (note.onset, note.pitch.number))
 
     def to_midi(self, instrument='Acoustic Grand Piano', velocity=64, bpm=100):
         import pretty_midi
