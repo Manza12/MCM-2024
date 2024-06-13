@@ -1,5 +1,5 @@
 import unittest
-from hartex import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, Instrument, Group, Instrumentation, \
+from hartex import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, Instrument, Section, Instrumentation, \
     TensorContraction
 
 
@@ -40,7 +40,7 @@ class TestObjects(unittest.TestCase):
         harmony = Harmony([Chord({Pitch(60), Pitch(64), Pitch(67)}), Chord({Pitch(62), Pitch(65), Pitch(69)})])
         texture = Texture(Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}),
                           Rhythm({Hit(frac(1, 4), frac(1, 4)), Hit(frac(1, 2), frac(1, 4))}))
-        instrumentation = Instrumentation([Group({Instrument('piano')}), Group({Instrument('violin')})])
+        instrumentation = Instrumentation([Section({Instrument('piano')}), Section({Instrument('violin')})])
         TensorContraction(harmony, texture, instrumentation)
 
 

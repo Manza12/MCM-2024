@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from .objects import frac, \
     Hit, Rhythm, Texture, \
     Pitch, Chord, Harmony, \
-    Instrument, Group, Instrumentation, \
+    Instrument, Section, Instrumentation, \
     TensorContraction
 
 
@@ -101,7 +101,7 @@ class ScoreTree:
         # Ids
         elif element.tag in ['hits', 'rhythms', 'textures',
                              'pitches', 'chords', 'harmonies',
-                             'instruments', 'groups', 'instrumentations']:
+                             'instruments', 'sections', 'instrumentations']:
             for child in element:
                 assert child.attrib.get('id') is not None
                 self.objects[child.attrib['id']] = self.decode(child)
@@ -217,34 +217,34 @@ class ScoreTree:
             return harmony
         elif element.tag == 'instrument':
             return Instrument(element[0].text)
-        elif element.tag == 'group':
+        elif element.tag == 'section':
             # Check if it's a reference
             if len(element) != 0 and element[0].tag == 'id':
                 return self.decode(element[0])
 
-            # Decode group
+            # Decode section
             instruments = set()
             for child in element:
                 instrument = self.decode(child)
                 instruments.add(instrument)
-            group = Group(instruments)
+            section = Section(instruments)
 
-            # Save the group if it has an id
+            # Save the section if it has an id
             if element.attrib.get('id') is not None:
-                self.objects[element.attrib['id']] = group
+                self.objects[element.attrib['id']] = section
 
-            return group
+            return section
         elif element.tag == 'instrumentation':
             # Check if it's a reference
             if len(element) != 0 and element[0].tag == 'id':
                 return self.decode(element[0])
 
             # Decode instrumentation
-            groups = []
+            sections = []
             for child in element:
-                group = self.decode(child)
-                groups.append(group)
-            instrumentation = Instrumentation(groups)
+                section = self.decode(child)
+                sections.append(section)
+            instrumentation = Instrumentation(sections)
 
             # Save the instrumentation if it has an id
             if element.attrib.get('id') is not None:
@@ -264,7 +264,7 @@ class ScoreTree:
                 instrumentation = self.decode(element[2])
             else:
                 instrumentation = Instrumentation(
-                    [Group({Instrument('Acoustic Grand Piano')}) for _ in range(len(texture))])
+                    [Section({Instrument('Acoustic Grand Piano')}) for _ in range(len(texture))])
             tensor_contraction = TensorContraction(harmony, texture, instrumentation)
 
             # Save the harmonic texture if it has an id

@@ -79,7 +79,7 @@ class Texture:
         self.rhythms = rhythms
 
     def __mul__(self, harmony: 'Harmony') -> 'TensorContraction':
-        return TensorContraction(harmony, self, Instrumentation([Group({Instrument("Acoustic Grand Piano")})]))
+        return TensorContraction(harmony, self, Instrumentation([Section({Instrument("Acoustic Grand Piano")})]))
 
     def __add__(self, other: 'Texture') -> 'Texture':
         return Texture(self.rhythms + other.rhythms)
@@ -214,13 +214,13 @@ class Instrument:
         return self.name
 
 
-class Group:
+class Section:
     @multimethod
     def __init__(self):
         self.instruments = set()
 
     @multimethod
-    def __init__(self, group: 'Group'):
+    def __init__(self, group: 'Section'):
         self.instruments = {i for i in group.instruments}
 
     @multimethod
@@ -228,7 +228,7 @@ class Group:
         self.instruments = instruments
 
     def __eq__(self, other):
-        if not isinstance(other, Group):
+        if not isinstance(other, Section):
             return False
         return self.instruments == other.instruments
 
@@ -246,7 +246,7 @@ class Instrumentation:
         self.groups = [g for g in instrumentation.groups]
 
     @multimethod
-    def __init__(self, groups: List[Group]):
+    def __init__(self, groups: List[Section]):
         self.groups = groups
 
     def __eq__(self, other):
@@ -303,7 +303,7 @@ class TensorContraction:
         if len(texture) != len(harmony):
             warnings.warn("Texture and harmony have different lengths")
         if instrumentation is None:
-            instrumentation = Instrumentation([Group() for _ in range(len(texture))])
+            instrumentation = Instrumentation([Section() for _ in range(len(texture))])
         else:
             if len(instrumentation.groups) != len(texture):
                 warnings.warn("Texture and instrumentation have different lengths")

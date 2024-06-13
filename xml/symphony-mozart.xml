@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="score.xsd">
+    <title>Symphony nº 40</title>
+    <composer>Mozart</composer>
+    <tempo>
+        <beat num="1" den="2"/>
+        <bpm>120</bpm>
+    </tempo>
+    <time-signature>
+        <numerator>2</numerator>
+        <denominator>2</denominator>
+    </time-signature>
+    <textures>
+        <texture id="texture-bass">
+            <rhythm>
+                <hit>
+                    <onset num="0" den="4"/>
+                    <duration num="1" den="4"/>
+                </hit>
+            </rhythm>
+        </texture>
+        <texture id="texture-accompaniment">
+            <rhythm>
+                <hit>
+                    <onset num="0" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+                <hit>
+                    <onset num="1" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+            </rhythm>
+            <rhythm>
+                <hit>
+                    <onset num="2" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+                <hit>
+                    <onset num="3" den="8"/>
+                    <duration num="1" den="8"/>
+                </hit>
+            </rhythm>
+        </texture>
+<!--        <texture id="texture-melody">-->
+<!--            <rhythm id="texture-melody-1">-->
+<!--                <hit>-->
+<!--                    <onset num="-1" den="8"/>-->
+<!--                    <duration num="1" den="8"/>-->
+<!--                </hit>-->
+<!--            </rhythm>-->
+<!--            <rhythm id="texture-melody-2">-->
+<!--                <hit>-->
+<!--                    <onset num="9" den="8"/>-->
+<!--                    <duration num="1" den="4"/>-->
+<!--                </hit>-->
+<!--            </rhythm>-->
+<!--            <rhythm id="texture-melody-3">-->
+<!--                <hit>-->
+<!--                    <onset num="1" den="2"/>-->
+<!--                    <duration num="1" den="8"/>-->
+<!--                </hit>-->
+<!--                <hit>-->
+<!--                    <onset num="6" den="8"/>-->
+<!--                    <duration num="3" den="8"/>-->
+<!--                </hit>-->
+<!--            </rhythm>-->
+<!--            <rhythm id="texture-melody-4">-->
+<!--                <hit>-->
+<!--                    <onset num="0" den="2"/>-->
+<!--                    <duration num="1" den="2"/>-->
+<!--                </hit>-->
+<!--                <hit>-->
+<!--                    <onset num="5" den="8"/>-->
+<!--                    <duration num="1" den="8"/>-->
+<!--                </hit>-->
+<!--            </rhythm>-->
+<!--            <rhythm id="texture-melody-5">-->
+<!--                <hit>-->
+<!--                    <onset num="11" den="8"/>-->
+<!--                    <duration num="1" den="8"/>-->
+<!--                </hit>-->
+<!--            </rhythm>-->
+<!--        </texture>-->
+    </textures>
+    <instrumentations>
+        <instrumentation id="instrumentation-bass">
+            <section>
+                <instrument>
+                    <name>Cello</name>
+                </instrument>
+                <instrument>
+                    <name>Contrabass</name>
+                </instrument>
+            </section>
+        </instrumentation>
+        <instrumentation id="instrumentation-accompaniment">
+            <section>
+                <instrument>
+                    <name>Viola</name>
+                </instrument>
+            </section>
+            <section>
+                <instrument>
+                    <name>Viola</name>
+                </instrument>
+            </section>
+        </instrumentation>
+    </instrumentations>
+    <ast>
+        <concatenate>
+            <parallel>
+                <product id="accompaniment:b1-2">
+                    <texture>
+                        <id>texture-accompaniment</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch>
+                                <number>55</number>
+                            </pitch>
+                            <pitch>
+                                <number>58</number>
+                            </pitch>
+                        </chord>
+                        <chord>
+                            <pitch>
+                                <number>58</number>
+                            </pitch>
+                            <pitch>
+                                <number>67</number>
+                            </pitch>
+                        </chord>
+                    </harmony>
+                    <instrumentation>
+                        <id>instrumentation-accompaniment</id>
+                    </instrumentation>
+                </product>
+                <product>
+                    <texture>
+                        <id>texture-bass</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch>
+                                <number>43</number>
+                            </pitch>
+                        </chord>
+                    </harmony>
+                    <instrumentation>
+                        <id>instrumentation-bass</id>
+                    </instrumentation>
+                </product>
+            </parallel>
+            <parallel>
+                <product>
+                    <id>accompaniment:b1-2</id>
+                </product>
+                <product>
+                    <texture>
+                        <id>texture-bass</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                        </chord>
+                    </harmony>
+                    <instrumentation>
+                        <id>instrumentation-bass</id>
+                    </instrumentation>
+                </product>
+            </parallel>
+            <parallel>
+                <product>
+                    <id>accompaniment:b1-2</id>
+                </product>
+                <product>
+                    <texture>
+                        <id>texture-bass</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch>
+                                <number>55</number>
+                            </pitch>
+                        </chord>
+                    </harmony>
+                    <instrumentation>
+                        <id>instrumentation-bass</id>
+                    </instrumentation>
+                </product>
+            </parallel>
+            <parallel>
+                <product>
+                    <id>accompaniment:b1-2</id>
+                </product>
+                <product>
+                    <texture>
+                        <id>texture-bass</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                        </chord>
+                    </harmony>
+                    <instrumentation>
+                        <id>instrumentation-bass</id>
+                    </instrumentation>
+                </product>
+            </parallel>
+            <parallel>
+                <product>
+                    <id>accompaniment:b1-2</id>
+                </product>
+                <product>
+                    <texture>
+                        <id>texture-bass</id>
+                    </texture>
+                    <harmony>
+                        <chord>
+                            <pitch>
+                                <number>55</number>
+                            </pitch>
+                        </chord>
+                    </harmony>
+                    <instrumentation>
+                        <id>instrumentation-bass</id>
+                    </instrumentation>
+                </product>
+            </parallel>
+        </concatenate>
+    </ast>
+</score>
