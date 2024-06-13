@@ -46,7 +46,15 @@ class Rhythm:
         self.hits = hits
 
     @multimethod
+    def __init__(self, *hits: Hit):
+        self.hits = set(hits)
+
+    @multimethod
     def __init__(self, hits: Set[Tuple[frac, frac]]):
+        self.hits = {Hit(h) for h in hits}
+
+    @multimethod
+    def __init__(self, *hits: Tuple[frac, frac]):
         self.hits = {Hit(h) for h in hits}
 
     def __add__(self, shift: frac) -> 'Rhythm':
@@ -220,12 +228,16 @@ class Section:
         self.instruments = set()
 
     @multimethod
-    def __init__(self, group: 'Section'):
-        self.instruments = {i for i in group.instruments}
+    def __init__(self, section: 'Section'):
+        self.instruments = {i for i in section.instruments}
 
     @multimethod
     def __init__(self, instruments: Set[Instrument]):
         self.instruments = instruments
+
+    @multimethod
+    def __init__(self, *instruments: Instrument):
+        self.instruments = set(instruments)
 
     def __eq__(self, other):
         if not isinstance(other, Section):
@@ -239,26 +251,30 @@ class Section:
 class Instrumentation:
     @multimethod
     def __init__(self):
-        self.groups = []
+        self.sections = []
 
     @multimethod
     def __init__(self, instrumentation: 'Instrumentation'):
-        self.groups = [g for g in instrumentation.groups]
+        self.sections = [s for s in instrumentation.sections]
 
     @multimethod
-    def __init__(self, groups: List[Section]):
-        self.groups = groups
+    def __init__(self, sections: List[Section]):
+        self.sections = sections
+
+    @multimethod
+    def __init__(self, *sections: Section):
+        self.sections = list(sections)
 
     def __eq__(self, other):
         if not isinstance(other, Instrumentation):
             return False
-        return self.groups == other.groups
+        return self.sections == other.sections
 
     def __add__(self, other: 'Instrumentation') -> 'Instrumentation':
-        return Instrumentation(self.groups + other.groups)
+        return Instrumentation(self.sections + other.sections)
 
     def __str__(self):
-        return f"[{', '.join([str(g) for g in self.groups])}]"
+        return f"[{', '.join([str(g) for g in self.sections])}]"
 
 
 # Time-Frequency
@@ -305,7 +321,7 @@ class TensorContraction:
         if instrumentation is None:
             instrumentation = Instrumentation([Section() for _ in range(len(texture))])
         else:
-            if len(instrumentation.groups) != len(texture):
+            if len(instrumentation.sections) != len(texture):
                 warnings.warn("Texture and instrumentation have different lengths")
         self.texture = texture
         self.harmony = harmony
@@ -331,7 +347,7 @@ class TensorContraction:
 
     def notes(self) -> Set['Note']:
         result = set()
-        for rhythm, chord, group in zip(self.texture.rhythms, self.harmony.chords, self.instrumentation.groups):
+        for rhythm, chord, group in zip(self.texture.rhythms, self.harmony.chords, self.instrumentation.sections):
             for hit in rhythm.hits:
                 for pitch in chord.pitches:
                     for instrument in group.instruments:

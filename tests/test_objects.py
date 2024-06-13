@@ -1,5 +1,5 @@
 import unittest
-from hartex import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, Instrument, Section, Instrumentation, \
+from src import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, Instrument, Section, Instrumentation, \
     TensorContraction
 
 

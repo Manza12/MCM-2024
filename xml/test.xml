@@ -85,51 +85,51 @@
     </textures>
     <instrumentations>
         <instrumentation id="Mel">
-            <group>
+            <section>
                 <instrument>
                     <name>Violin</name>
                 </instrument>
-            </group>
-            <group>
+            </section>
+            <section>
                 <instrument>
                     <name>Violin</name>
                 </instrument>
-            </group>
-            <group>
+            </section>
+            <section>
                 <instrument>
                     <name>Violin</name>
                 </instrument>
-            </group>
-            <group>
+            </section>
+            <section>
                 <instrument>
                     <name>Violin</name>
                 </instrument>
-            </group>
-            <group>
+            </section>
+            <section>
                 <instrument>
                     <name>Violin</name>
                 </instrument>
-            </group>
+            </section>
         </instrumentation>
         <instrumentation id="New-instrumentation">
-            <group>
+            <section>
                 <instrument>
                     <name>Acoustic Grand Piano</name>
                 </instrument>
-            </group>
-            <group>
+            </section>
+            <section>
                 <instrument>
                     <name>Acoustic Grand Piano</name>
                 </instrument>
-            </group>
-            <group>
+            </section>
+            <section>
                 <instrument>
                     <name>Acoustic Grand Piano</name>
                 </instrument>
-            </group>
+            </section>
         </instrumentation>
         <instrumentation id="New-instrumentation">
-            <group>
+            <section>
                 <instrument>
                     <name>Pizzicato Strings</name>
                 </instrument>
@@ -139,17 +139,17 @@
                 <instrument>
                     <name>Tuba</name>
                 </instrument>
-            </group>
-            <group>
+            </section>
+            <section>
                 <instrument>
                     <name>Oboe</name>
                 </instrument>
-            </group>
-            <group>
+            </section>
+            <section>
                 <instrument>
                     <name>Oboe</name>
                 </instrument>
-            </group>
+            </section>
         </instrumentation>
     </instrumentations>
     <ast>
@@ -339,16 +339,16 @@
                         </chord>
                     </harmony>
                     <instrumentation>
-                        <group>
+                        <section>
                             <instrument>
                                 <name>Violin</name>
                             </instrument>
-                        </group>
-                        <group>
+                        </section>
+                        <section>
                             <instrument>
                                 <name>Violin</name>
                             </instrument>
-                        </group>
+                        </section>
                     </instrumentation>
                 </product>
             </concatenate>

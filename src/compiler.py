@@ -1,6 +1,6 @@
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from .objects import frac, \
+from .model import frac, \
     Hit, Rhythm, Texture, \
     Pitch, Chord, Harmony, \
     Instrument, Section, Instrumentation, \

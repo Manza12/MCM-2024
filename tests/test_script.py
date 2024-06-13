@@ -1,4 +1,4 @@
-from hartex import frac, Hit, Harmony, Rhythm, Texture
+from src.model import frac, Hit, Harmony, Rhythm, Texture
 
 t_acc = Texture(
     Rhythm({Hit(frac('0'), frac('1/8'))}),

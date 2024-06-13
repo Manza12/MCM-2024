@@ -1,5 +1,5 @@
 from pathlib import Path
-from hartex.compiler import ScoreTree
+from src.compiler import ScoreTree
 
 score_tree = ScoreTree(Path('../xml/test.xml'))
 midi = score_tree.to_midi()
