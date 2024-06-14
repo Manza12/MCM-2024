@@ -35,7 +35,7 @@ class ScoreTree:
             self.beat = beat
             self.bpm = bpm
 
-        def __str__(self):
+        def __repr__(self):
             return f'{self.beat} = {self.bpm}'
 
     class TimeSignature:
@@ -43,7 +43,7 @@ class ScoreTree:
             self.numerator = numerator
             self.denominator = denominator
 
-        def __str__(self):
+        def __repr__(self):
             return f'{self.numerator}/{self.denominator}'
 
     def to_midi(self, velocity: int = 50):

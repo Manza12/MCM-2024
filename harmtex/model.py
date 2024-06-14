@@ -37,7 +37,7 @@ class Hit:
             return False
         return self.onset == other.onset and self.duration == other.duration
 
-    def __str__(self):
+    def __repr__(self):
         return f"({self.onset}, {self.duration})"
 
 
@@ -74,7 +74,7 @@ class Rhythm:
             return False
         return self.hits == other.hits
 
-    def __str__(self):
+    def __repr__(self):
         return '{' + f"{', '.join([str(h) for h in self.hits])}" + '}'
 
 
@@ -115,7 +115,7 @@ class Texture:
     def __len__(self):
         return len(self.rhythms)
 
-    def __str__(self):
+    def __repr__(self):
         return f"[{', '.join([str(r) for r in self.rhythms])}]"
 
     @property
@@ -165,7 +165,7 @@ class Pitch:
     def __hash__(self):
         return hash(self.number)
 
-    def __str__(self):
+    def __repr__(self):
         return str(self.number)
 
 
@@ -198,7 +198,7 @@ class Chord:
             return False
         return self.pitches == other.pitches
 
-    def __str__(self):
+    def __repr__(self):
         return '{' + f"{', '.join([str(p) for p in self.pitches])}" + '}'
 
     @classmethod
@@ -247,7 +247,7 @@ class Harmony:
     def __len__(self):
         return len(self.chords)
 
-    def __str__(self):
+    def __repr__(self):
         return f"[{', '.join([str(c) for c in self.chords])}]"
 
     @classmethod
@@ -269,7 +269,7 @@ class Instrument:
     def __hash__(self):
         return hash(self.name)
 
-    def __str__(self):
+    def __repr__(self):
         return self.name
 
 
@@ -295,7 +295,7 @@ class Section:
             return False
         return self.instruments == other.instruments
 
-    def __str__(self):
+    def __repr__(self):
         return '{' + f"{', '.join([str(i) for i in self.instruments])}" + '}'
 
 
@@ -324,7 +324,7 @@ class Instrumentation:
     def __add__(self, other: 'Instrumentation') -> 'Instrumentation':
         return Instrumentation(self.sections + other.sections)
 
-    def __str__(self):
+    def __repr__(self):
         return f"[{', '.join([str(g) for g in self.sections])}]"
 
 
@@ -348,7 +348,7 @@ class Note:
     def __hash__(self):
         return hash((self.pitch, self.onset, self.duration, self.instrument))
 
-    def __str__(self):
+    def __repr__(self):
         return f"({self.pitch}, {self.onset}, {self.duration}, {self.instrument})"
 
 
@@ -402,12 +402,23 @@ class TensorContraction:
 
     def notes(self) -> Set['Note']:
         result = set()
+        if self.texture is None and self.harmony is None and self.instrumentation is None:
+            return result
+
+        len_texture = len(self.texture.rhythms) if self.texture is not None else 0
+        len_harmony = len(self.harmony.chords) if self.harmony is not None else 0
+        len_instrumentation = len(self.instrumentation.sections) if self.instrumentation is not None else 0
+        max_len = max(len_texture, len_harmony, len_instrumentation)
+
         if self.texture is None:
-            self.texture = Texture(Rhythm(Hit('0', '1')))
+            unit_rhythm = Rhythm(Hit('0', '1'))
+            self.texture = Texture([unit_rhythm for _ in range(max_len)])
         if self.harmony is None:
-            self.harmony = Harmony(Chord())
+            unit_chord = Chord()
+            self.harmony = Harmony([unit_chord for _ in range(max_len)])
         if self.instrumentation is None:
-            self.instrumentation = Instrumentation(Section(Instrument('Acoustic Grand Piano')))
+            unit_section = Section(Instrument('Acoustic Grand Piano'))
+            self.instrumentation = Instrumentation([unit_section for _ in range(max_len)])
 
         for rhythm, chord, group in zip(self.texture.rhythms, self.harmony.chords, self.instrumentation.sections):
             for hit in rhythm.hits:

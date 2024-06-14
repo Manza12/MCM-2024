@@ -3,7 +3,7 @@ from harmtex import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, Instrumen
     TensorContraction
 
 
-class TestObjects(unittest.TestCase):
+class TestModel(unittest.TestCase):
     def test_pitch(self):
         Pitch(60)
 
@@ -47,13 +47,39 @@ class TestObjects(unittest.TestCase):
         tc = TensorContraction()
         assert tc.notes() == set()
 
-        tc = TensorContraction(Harmony(Chord({60, 64, 67})))
-        print(tc.notes())
+        h = Harmony(Chord({60, 64, 67}))
+        tc = TensorContraction(h)
+        assert len(tc.notes()) == 3
+
+        h = Harmony(Chord({60, 64, 67}), Chord({62, 65, 67}))
+        tc = TensorContraction(h)
+        assert len(tc.notes()) == 5
+
+        t = Texture(Rhythm(Hit('0/8', '1/8'), Hit('1/8', '1/8'), Hit('2/8', '1/8')))
+        tc = TensorContraction(texture=t)
+        assert len(tc.notes()) == 0
+
+        t = Texture(Rhythm(Hit('0/8', '1/8')),
+                    Rhythm(Hit('1/8', '1/8'), Hit('2/8', '1/8')))
+        tc = TensorContraction(texture=t)
+        assert len(tc.notes()) == 0
+
+        h = Harmony(Chord({60}), Chord({64, 67}))
+        tc = TensorContraction(h, t)
+        assert len(tc.notes()) == 5
+
+        i = Instrumentation(Section(Instrument('piano')))
+        tc = TensorContraction(instrumentation=i)
+        assert len(tc.notes()) == 0
+
+        i = Instrumentation(Section(Instrument('Tuba')), Section(Instrument('Horn'), Instrument('Trumpet')))
+        tc = TensorContraction(h, t, i)
+        assert len(tc.notes()) == 9
 
 
 if __name__ == '__main__':
-    test_objects = TestObjects()
-    tests = [method for method in dir(TestObjects) if method.startswith('test_')]
+    test_objects = TestModel()
+    tests = [method for method in dir(TestModel) if method.startswith('test_')]
 
     for test_name in tests:
         test = getattr(test_objects, test_name)
