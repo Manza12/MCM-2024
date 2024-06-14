@@ -1,6 +1,6 @@
 # import warnings
 from fractions import Fraction as frac
-from typing import Set, List, Tuple, Union
+from typing import Set, List, Tuple, Union, Optional
 from multimethod import multimethod
 from .constants import ROMAN_NUMERAL_TO_SHIFT
 
@@ -202,13 +202,27 @@ class Chord:
         return '{' + f"{', '.join([str(p) for p in self.pitches])}" + '}'
 
     @classmethod
-    def from_roman_numeral(cls, roman_numeral: str, inversion: int = 0, octave: int = 0) -> 'Chord':
+    def from_roman_numeral(cls, roman_numeral: str,
+                           inversion: int = 0,
+                           octave: int = 0,
+                           n_notes: Optional[int] = None
+                           ) -> 'Chord':
         try:
             shifts = ROMAN_NUMERAL_TO_SHIFT[roman_numeral]
         except KeyError:
             raise ValueError(f"Roman numeral: {roman_numeral} not found.")
 
-        return cls({Pitch(p + 12 * octave) for p in shifts})
+        n = len(shifts)
+        shifts_spacing = [(shifts[(i + 1) % n] - shifts[i % n]) % 12 for i in range(len(shifts))]
+        if n_notes is None:
+            n_notes = n
+
+        if inversion != 0:
+            shifts = shifts[inversion:] + shifts[:inversion]
+            shifts_spacing = shifts_spacing[inversion:] + shifts_spacing[:inversion]
+
+        bass = shifts[0] + 12 * octave
+        return cls({bass + sum(shifts_spacing[:i]) for i in range(n_notes)})
 
 
 class Harmony:
