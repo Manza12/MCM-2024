@@ -43,6 +43,13 @@ class TestObjects(unittest.TestCase):
         instrumentation = Instrumentation([Section({Instrument('piano')}), Section({Instrument('violin')})])
         TensorContraction(harmony, texture, instrumentation)
 
+    def test_tensor_contraction_methods(self):
+        tc = TensorContraction()
+        assert tc.notes() == set()
+
+        tc = TensorContraction(Harmony(Chord({60, 64, 67})))
+        print(tc.notes())
+
 
 if __name__ == '__main__':
     test_objects = TestObjects()

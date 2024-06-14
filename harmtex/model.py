@@ -1,4 +1,4 @@
-import warnings
+# import warnings
 from fractions import Fraction as frac
 from typing import Set, List, Tuple, Union
 from multimethod import multimethod
@@ -153,7 +153,9 @@ class Pitch:
 
     @multimethod
     def __add__(self, other: 'TensorContraction') -> 'TensorContraction':
-        return TensorContraction.__radd__(other, self)
+        return TensorContraction(self + other.harmony,
+                                 other.texture,
+                                 other.instrumentation)
 
     def __eq__(self, other):
         if not isinstance(other, Pitch):
@@ -236,9 +238,6 @@ class Harmony:
 
     def __add__(self, other: 'Harmony') -> 'Harmony':
         return Harmony(self.chords + other.chords)
-
-    def __radd__(self, other: Pitch) -> 'Harmony':
-        return Harmony([other + chord for chord in self.chords])
 
     def __eq__(self, other):
         if not isinstance(other, Harmony):
@@ -331,7 +330,7 @@ class Instrumentation:
 
 # Time-Frequency
 class Note:
-    def __init__(self, pitch: Pitch, onset: frac, duration: frac, instrument: Instrument = None):
+    def __init__(self, pitch: Pitch, onset: frac, duration: frac, instrument: Instrument):
         self.pitch = pitch
         self.onset = onset
         self.duration = duration
@@ -367,32 +366,31 @@ class TensorContraction:
         self.instrumentation = Instrumentation(tensor_contraction.instrumentation)
 
     @multimethod
-    def __init__(self, harmony: Harmony, texture: Texture, instrumentation: Instrumentation = None):
-        if len(texture) != len(harmony):
-            warnings.warn("Texture and harmony have different lengths")
-        if instrumentation is None:
-            instrumentation = Instrumentation(*[Section() for _ in range(len(texture))])
-        else:
-            if len(instrumentation.sections) != len(texture):
-                warnings.warn("Texture and instrumentation have different lengths")
+    def __init__(self, harmony: Harmony = None, texture: Texture = None, instrumentation: Instrumentation = None):
+        # if len(texture) != len(harmony):
+        #     warnings.warn("Texture and harmony have different lengths")
+        # if instrumentation is None:
+        #     instrumentation = Instrumentation(*[Section() for _ in range(len(texture))])
+        # else:
+        #     if len(instrumentation.sections) != len(texture):
+        #         warnings.warn("Texture and instrumentation have different lengths")
         self.texture = texture
         self.harmony = harmony
         self.instrumentation = instrumentation
 
     def __or__(self, other: 'TensorContraction') -> 'TensorContraction':
-        return TensorContraction(self.harmony + other.harmony,
-                                 self.texture + other.texture,
-                                 self.instrumentation + other.instrumentation)
+        new_harmony = self.harmony + other.harmony if self.harmony is not None else other.harmony
+        new_texture = self.texture + other.texture if self.texture is not None else other.texture
+        new_instrumentation = self.instrumentation + other.instrumentation \
+            if self.instrumentation is not None else other.instrumentation
+        return TensorContraction(new_harmony, new_texture, new_instrumentation)
 
     def __sub__(self, other: 'TensorContraction') -> 'TensorContraction':
-        return TensorContraction(self.harmony + other.harmony,
-                                 self.texture - other.texture,
-                                 self.instrumentation + other.instrumentation)
-
-    def __radd__(self, other: Pitch) -> 'TensorContraction':
-        return TensorContraction(other + self.harmony,
-                                 self.texture,
-                                 self.instrumentation)
+        new_harmony = self.harmony + other.harmony if self.harmony is not None else other.harmony
+        new_texture = self.texture - other.texture if self.texture is not None else None
+        new_instrumentation = self.instrumentation + other.instrumentation \
+            if self.instrumentation is not None else other.instrumentation
+        return TensorContraction(new_harmony, new_texture, new_instrumentation)
 
     def __eq__(self, other):
         if not isinstance(other, TensorContraction):
@@ -404,6 +402,13 @@ class TensorContraction:
 
     def notes(self) -> Set['Note']:
         result = set()
+        if self.texture is None:
+            self.texture = Texture(Rhythm(Hit('0', '1')))
+        if self.harmony is None:
+            self.harmony = Harmony(Chord())
+        if self.instrumentation is None:
+            self.instrumentation = Instrumentation(Section(Instrument('Acoustic Grand Piano')))
+
         for rhythm, chord, group in zip(self.texture.rhythms, self.harmony.chords, self.instrumentation.sections):
             for hit in rhythm.hits:
                 for pitch in chord.pitches:
@@ -414,18 +419,22 @@ class TensorContraction:
     def ordered_notes(self) -> List['Note']:
         return sorted(self.notes(), key=lambda note: (note.onset, note.pitch.number))
 
-    def to_midi(self, instrument='Acoustic Grand Piano', velocity=64, bpm=100):
+    def to_midi(self, velocity=64, bpm=100):
         import pretty_midi
         notes = self.notes()
         start = min(note.onset for note in notes)
         midi = pretty_midi.PrettyMIDI()
-        instrument_program = pretty_midi.instrument_name_to_program(instrument)
-        track = pretty_midi.Instrument(program=instrument_program)
-        for note in notes:
-            onset_s = float((note.onset-start) * 240 / bpm)
-            duration_s = float(note.duration * 240 / bpm)
-            end_s = onset_s + duration_s
-            note = pretty_midi.Note(velocity=velocity, pitch=note.pitch.number, start=onset_s, end=end_s)
-            track.notes.append(note)
-        midi.instruments.append(track)
+
+        instruments = set(note.instrument for note in notes)
+        for instrument in instruments:
+            instrument_program = pretty_midi.instrument_name_to_program(instrument.name)
+            track = pretty_midi.Instrument(program=instrument_program)
+            notes_instrument = [note for note in notes if note.instrument == instrument]
+            for note in notes_instrument:
+                onset_s = float((note.onset-start) * 240 / bpm)
+                duration_s = float(note.duration * 240 / bpm)
+                end_s = onset_s + duration_s
+                note = pretty_midi.Note(velocity=velocity, pitch=note.pitch.number, start=onset_s, end=end_s)
+                track.notes.append(note)
+            midi.instruments.append(track)
         return midi
