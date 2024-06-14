@@ -26,6 +26,9 @@ class Hit:
     def __init__(self, onset_duration: Tuple[frac, frac]):
         self.onset, self.duration = onset_duration
 
+    def __radd__(self, other: frac) -> 'Hit':
+        return Hit(self.onset + other, self.duration)
+
     def __hash__(self):
         return hash((self.onset, self.duration))
 
@@ -64,7 +67,7 @@ class Rhythm:
         self.hits = {Hit(h) for h in hits}
 
     def __add__(self, shift: frac) -> 'Rhythm':
-        return Rhythm({Hit(hit.onset + shift, hit.duration) for hit in self.hits})
+        return Rhythm({shift + Hit(hit.onset, hit.duration) for hit in self.hits})
 
     def __eq__(self, other):
         if not isinstance(other, Rhythm):
