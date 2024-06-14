@@ -1,5 +1,5 @@
 from pathlib import Path
-from src.compiler import ScoreTree
+from harmtex.compiler import ScoreTree
 
 score_tree = ScoreTree(Path('../xml/test.xml'))
 midi = score_tree.to_midi()

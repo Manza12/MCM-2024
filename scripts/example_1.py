@@ -1,5 +1,5 @@
-from src.model import Hit, Harmony, Chord, Rhythm, Texture, Pitch, Instrumentation, Section, Instrument
-from src.functions import concatenation, contraction
+from harmtex.model import Hit, Harmony, Chord, Rhythm, Texture, Pitch, Instrumentation, Section, Instrument
+from harmtex.functions import concatenation, contraction
 
 orquestation = Instrumentation([
     Section(Instrument('Piano')),

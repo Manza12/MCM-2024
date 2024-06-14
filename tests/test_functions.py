@@ -1,4 +1,4 @@
-from src import frac, Hit, Harmony, Rhythm, Texture, contraction, parallelization, concatenation
+from harmtex import frac, Hit, Harmony, Rhythm, Texture, contraction, parallelization, concatenation
 
 
 t_acc = Texture(
