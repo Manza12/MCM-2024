@@ -60,7 +60,7 @@ class ScoreTree:
         # Get instruments
         instruments = set()
         for note in notes:
-            print(note)
+            # print(note)
             instruments.add(note.instrument)
 
         # Add instruments

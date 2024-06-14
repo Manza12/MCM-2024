@@ -145,11 +145,11 @@ class Pitch:
 
     @multimethod
     def __add__(self, other: 'Chord') -> 'Chord':
-        return Chord.__radd__(other, self)
+        return Chord({self + p for p in other.pitches})
 
     @multimethod
     def __add__(self, other: 'Harmony') -> 'Harmony':
-        return Harmony.__radd__(other, self)
+        return Harmony({self + c for c in other.chords})
 
     @multimethod
     def __add__(self, other: 'TensorContraction') -> 'TensorContraction':
@@ -350,6 +350,18 @@ class Note:
 
     def __repr__(self):
         return f"({self.pitch}, {self.onset}, {self.duration}, {self.instrument})"
+
+    @property
+    def start(self):
+        return self.onset
+
+    @property
+    def end(self):
+        return self.onset + self.duration
+
+    @property
+    def frequency(self):
+        return self.pitch.number
 
 
 class TensorContraction:
