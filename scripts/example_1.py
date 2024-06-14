@@ -1,11 +1,6 @@
-from harmtex.model import Hit, Harmony, Chord, Rhythm, Texture, Pitch, Instrumentation, Section, Instrument
+from harmtex.model import Hit, Harmony, Chord, Rhythm, Texture, Pitch
 from harmtex.functions import concatenation, contraction
-
-orquestation = Instrumentation([
-    Section(Instrument('Piano')),
-    Section(Instrument('Piano')),
-    Section(Instrument('Piano')),
-])
+from harmtex.plot import plot_notes, plt
 
 t_alberti = Texture(
     Rhythm(Hit('0/8', '1/8')),
@@ -20,7 +15,7 @@ h_V_1 = Harmony.from_chord(Chord.from_roman_numeral('V', 1, -1))
 
 harmony_theme_A = [h_I, h_I, h_Vno5_2, h_I, h_IV_2, h_I, h_V_1, h_I]
 texture_theme_A = [t_alberti for _ in harmony_theme_A]
-harmonic_textures = [contraction(h, t, orquestation) for h, t in zip(harmony_theme_A, texture_theme_A)]
+harmonic_textures = [contraction(h, t) for h, t in zip(harmony_theme_A, texture_theme_A)]
 accompaniment_theme_A = concatenation(*harmonic_textures)
 
 C4 = Pitch(60)
@@ -41,3 +36,7 @@ print(accompaniment_theme_A_in_C4.harmony)
 # Write MIDI
 midi = accompaniment_theme_A_in_C4.to_midi(bpm=120)
 midi.write('../midi/example_1.mid')
+
+# Plot
+plot_notes(accompaniment_theme_A_in_C4)
+plt.show()

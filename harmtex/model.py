@@ -149,7 +149,7 @@ class Pitch:
 
     @multimethod
     def __add__(self, other: 'Harmony') -> 'Harmony':
-        return Harmony({self + c for c in other.chords})
+        return Harmony([self + c for c in other.chords])
 
     @multimethod
     def __add__(self, other: 'TensorContraction') -> 'TensorContraction':
@@ -399,7 +399,7 @@ class TensorContraction:
 
     def __sub__(self, other: 'TensorContraction') -> 'TensorContraction':
         new_harmony = self.harmony + other.harmony if self.harmony is not None else other.harmony
-        new_texture = self.texture - other.texture if self.texture is not None else None
+        new_texture = self.texture - other.texture if self.texture is not None else other.texture
         new_instrumentation = self.instrumentation + other.instrumentation \
             if self.instrumentation is not None else other.instrumentation
         return TensorContraction(new_harmony, new_texture, new_instrumentation)

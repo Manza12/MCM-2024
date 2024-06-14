@@ -2,3 +2,4 @@ from .model import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, Instrument
     TensorContraction
 from .compiler import ScoreTree
 from .functions import contraction, parallelization, concatenation
+from .plot import plot_notes
