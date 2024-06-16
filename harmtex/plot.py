@@ -1,6 +1,8 @@
 from harmtex.model import TensorContraction
 import matplotlib.pyplot as plt
 
+from harmtex.utils import midi_number_to_pitch
+
 
 def plot_notes(tensor_contraction: TensorContraction,
                linewidth: float = 5,
@@ -26,6 +28,10 @@ def plot_notes(tensor_contraction: TensorContraction,
     ambitus = max_freq - min_freq
     plt.ylim(min_freq - 1, max_freq + 1)
     plt.yticks(range(min_freq, max_freq + 1, ambitus // 5))
+
+    # Set y-axis labels
+    formatter = plt.FuncFormatter(lambda x, _: f'{midi_number_to_pitch(x)}')
+    plt.gca().yaxis.set_major_formatter(formatter)
 
     # Set x-axis
     if x_tick_start is None:

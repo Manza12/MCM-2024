@@ -150,6 +150,8 @@ class Pitch:
 
     @multimethod
     def __add__(self, other: 'Chord') -> 'Chord':
+        if len(other.pitches) == 0:
+            return Chord()
         return Chord({self + p for p in other.pitches})
 
     @multimethod
@@ -165,6 +167,9 @@ class Pitch:
     @multimethod
     def __add__(self, other: 'HarmonicTexture') -> 'HarmonicTexture':
         return HarmonicTexture(self + other.harmony, other.texture)
+
+    def __lt__(self, other):
+        return self.number < other.number
 
     def __eq__(self, other):
         if not isinstance(other, Pitch):
@@ -199,8 +204,9 @@ class Chord:
     def __init__(self, pitches: Set[int]):
         self.pitches = {Pitch(p) for p in pitches}
 
-    def __radd__(self, other: Pitch):
-        return Chord({other + p for p in self.pitches})
+    def __getitem__(self, key):
+        ordered_pitches = sorted(list(self.pitches))
+        return Chord({ordered_pitches[i] for i in key})
 
     def __eq__(self, other):
         if not isinstance(other, Chord):
