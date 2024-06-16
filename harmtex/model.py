@@ -1,4 +1,4 @@
-# import warnings
+import warnings
 from fractions import Fraction as frac
 from typing import Set, List, Tuple, Union, Optional
 from multimethod import multimethod
@@ -95,11 +95,13 @@ class Texture:
     def __init__(self, rhythms: List[Rhythm]):
         self.rhythms = rhythms
 
-    def __mul__(self, harmony: 'Harmony') -> 'TensorContraction':
-        return TensorContraction(harmony, self, Instrumentation([Section({Instrument("Acoustic Grand Piano")})]))
+    @multimethod
+    def __mul__(self, harmony: 'Harmony') -> 'HarmonicTexture':
+        return HarmonicTexture(harmony, self)
 
-    def __rmul__(self, harmony: 'Harmony') -> 'TensorContraction':
-        return TensorContraction(harmony, self, Instrumentation([Section({Instrument("Acoustic Grand Piano")})]))
+    @multimethod
+    def __mul__(self, instrumentation: 'Instrumentation') -> 'InstrumentedTexture':
+        return InstrumentedTexture(instrumentation, self)
 
     def __add__(self, other: 'Texture') -> 'Texture':
         return Texture(self.rhythms + other.rhythms)
@@ -117,6 +119,9 @@ class Texture:
 
     def __repr__(self):
         return f"[{', '.join([str(r) for r in self.rhythms])}]"
+
+    def __getitem__(self, key):
+        return Texture(self.rhythms[key])
 
     @property
     def endpoint(self) -> frac:
@@ -156,6 +161,10 @@ class Pitch:
         return TensorContraction(self + other.harmony,
                                  other.texture,
                                  other.instrumentation)
+
+    @multimethod
+    def __add__(self, other: 'HarmonicTexture') -> 'HarmonicTexture':
+        return HarmonicTexture(self + other.harmony, other.texture)
 
     def __eq__(self, other):
         if not isinstance(other, Pitch):
@@ -253,10 +262,21 @@ class Harmony:
     def __add__(self, other: 'Harmony') -> 'Harmony':
         return Harmony(self.chords + other.chords)
 
+    @multimethod
+    def __mul__(self, texture: Texture) -> 'HarmonicTexture':
+        return HarmonicTexture(self, texture)
+
+    @multimethod
+    def __mul__(self, instrumentation: 'Instrumentation') -> 'HarmonicInstrumentation':
+        return HarmonicInstrumentation(self, instrumentation)
+
     def __eq__(self, other):
         if not isinstance(other, Harmony):
             return False
         return self.chords == other.chords
+
+    def __getitem__(self, key):
+        return Harmony(self.chords[key])
 
     def __len__(self):
         return len(self.chords)
@@ -328,15 +348,32 @@ class Instrumentation:
 
     @multimethod
     def __init__(self, *sections: Section):
-        self.sections = list(sections)
+        if len(sections) == 1 and isinstance(sections[0], list):
+            self.sections = []
+        else:
+            self.sections = list(sections)
+
+    def __getitem__(self, key):
+        return Instrumentation(self.sections[key])
+
+    def __len__(self):
+        return len(self.sections)
+
+    def __add__(self, other: 'Instrumentation') -> 'Instrumentation':
+        return Instrumentation(self.sections + other.sections)
+
+    @multimethod
+    def __mul__(self, harmony: Harmony) -> 'HarmonicInstrumentation':
+        return HarmonicInstrumentation(harmony, self)
+
+    @multimethod
+    def __mul__(self, texture: Texture) -> 'InstrumentedTexture':
+        return InstrumentedTexture(self, texture)
 
     def __eq__(self, other):
         if not isinstance(other, Instrumentation):
             return False
         return self.sections == other.sections
-
-    def __add__(self, other: 'Instrumentation') -> 'Instrumentation':
-        return Instrumentation(self.sections + other.sections)
 
     def __repr__(self):
         return f"[{', '.join([str(g) for g in self.sections])}]"
@@ -378,6 +415,130 @@ class Note:
         return self.pitch.number
 
 
+class HarmonicTexture:
+    @multimethod
+    def __init__(self):
+        self.harmony = Harmony()
+        self.texture = Texture()
+
+    @multimethod
+    def __init__(self, harmonic_texture: 'HarmonicTexture'):
+        self.harmony = Harmony(harmonic_texture.harmony)
+        self.texture = Texture(harmonic_texture.texture)
+
+    @multimethod
+    def __init__(self, harmony: Harmony, texture: Texture):
+        same_length = len(harmony) == len(texture)
+        if not same_length:
+            warnings.warn("Harmony and texture have different lengths; " +
+                          f"Harmony: {len(harmony)}, " +
+                          f"Texture: {len(texture)}. " +
+                          f"Clipping to the minimum length ({min(len(harmony), len(texture))}).")
+
+        min_length = min(len(harmony), len(texture))
+
+        self.harmony = harmony[:min_length]
+        self.texture = texture[:min_length]
+
+    def __or__(self, other: 'HarmonicTexture') -> 'HarmonicTexture':
+        return HarmonicTexture(self.harmony + other.harmony, self.texture + other.texture)
+
+    def __sub__(self, other: 'HarmonicTexture') -> 'HarmonicTexture':
+        return HarmonicTexture(self.harmony + other.harmony, self.texture - other.texture)
+
+    def __mul__(self, other: Instrumentation) -> 'TensorContraction':
+        return TensorContraction(self.harmony, self.texture, other)
+
+    def __eq__(self, other):
+        if not isinstance(other, HarmonicTexture):
+            return False
+        return self.harmony == other.harmony and self.texture == other.texture
+
+    def notes(self, instrument_name: str = 'Acoustic Grand Piano'):
+        result = set()
+
+        instrument = Instrument(instrument_name)
+
+        for rhythm, chord in zip(self.texture.rhythms, self.harmony.chords):
+            for hit in rhythm.hits:
+                for pitch in chord.pitches:
+                    result.add(Note(pitch, hit.onset, hit.duration, instrument))
+        return result
+
+    def ordered_notes(self, instrument_name: str = 'Acoustic Grand Piano'):
+        notes = self.notes(instrument_name)
+        return sorted(notes, key=lambda note: (note.onset, note.pitch.number))
+
+    def to_midi(self, velocity=64, bpm=100):
+        from .midi import to_midi
+        return to_midi(self.notes(), velocity, bpm)
+
+
+class HarmonicInstrumentation:
+    @multimethod
+    def __init__(self):
+        self.harmony = Harmony()
+        self.instrumentation = Instrumentation()
+
+    @multimethod
+    def __init__(self, harmonic_instrumentation: 'HarmonicInstrumentation'):
+        self.harmony = Harmony(harmonic_instrumentation.harmony)
+        self.instrumentation = Instrumentation(harmonic_instrumentation.instrumentation)
+
+    @multimethod
+    def __init__(self, harmony: Harmony, instrumentation: Instrumentation):
+        same_length = len(harmony) == len(instrumentation)
+        if not same_length:
+            warnings.warn("Harmony and instrumentation have different lengths; "
+                          f"Harmony: {len(harmony)}, "
+                          f"Instrumentation: {len(instrumentation)}")
+
+        self.harmony = harmony
+        self.instrumentation = instrumentation
+
+    def __or__(self, other: 'HarmonicInstrumentation') -> 'HarmonicInstrumentation':
+        return HarmonicInstrumentation(self.harmony + other.harmony, self.instrumentation + other.instrumentation)
+
+    def __eq__(self, other):
+        if not isinstance(other, HarmonicInstrumentation):
+            return False
+        return self.harmony == other.harmony and self.instrumentation == other.instrumentation
+
+
+class InstrumentedTexture:
+    @multimethod
+    def __init__(self):
+        self.instrumentation = Instrumentation()
+        self.texture = Texture()
+
+    @multimethod
+    def __init__(self, texture_instrumentation: 'InstrumentedTexture'):
+        self.instrumentation = Instrumentation(texture_instrumentation.instrumentation)
+        self.texture = Texture(texture_instrumentation.texture)
+
+    @multimethod
+    def __init__(self, instrumentation: Instrumentation, texture: Texture):
+        same_length = len(texture) == len(instrumentation)
+        if not same_length:
+            warnings.warn("Texture and instrumentation have different lengths; "
+                          f"Texture: {len(texture)}, "
+                          f"Instrumentation: {len(instrumentation)}")
+
+        self.instrumentation = instrumentation
+        self.texture = texture
+
+    def __or__(self, other: 'InstrumentedTexture') -> 'InstrumentedTexture':
+        return InstrumentedTexture(self.instrumentation + other.instrumentation, self.texture + other.texture)
+
+    def __sub__(self, other: 'InstrumentedTexture') -> 'InstrumentedTexture':
+        return InstrumentedTexture(self.instrumentation + other.instrumentation, self.texture - other.texture)
+
+    def __eq__(self, other):
+        if not isinstance(other, InstrumentedTexture):
+            return False
+        return self.texture == other.texture and self.instrumentation == other.instrumentation
+
+
 class TensorContraction:
     @multimethod
     def __init__(self):
@@ -392,17 +553,17 @@ class TensorContraction:
         self.instrumentation = Instrumentation(tensor_contraction.instrumentation)
 
     @multimethod
-    def __init__(self, harmony: Harmony = None, texture: Texture = None, instrumentation: Instrumentation = None):
-        # if len(texture) != len(harmony):
-        #     warnings.warn("Texture and harmony have different lengths")
-        # if instrumentation is None:
-        #     instrumentation = Instrumentation(*[Section() for _ in range(len(texture))])
-        # else:
-        #     if len(instrumentation.sections) != len(texture):
-        #         warnings.warn("Texture and instrumentation have different lengths")
-        self.texture = texture
-        self.harmony = harmony
-        self.instrumentation = instrumentation
+    def __init__(self, harmony: Harmony, texture: Texture, instrumentation: Instrumentation):
+        same_length = len(harmony) == len(texture) == len(instrumentation)
+        if not same_length:
+            warnings.warn("Harmony, texture and instrumentation have different lengths; "
+                          f"Harmony: {len(harmony)}, "
+                          f"Texture: {len(texture)}, "
+                          f"Instrumentation: {len(instrumentation)}")
+        min_length = min(len(harmony), len(texture), len(instrumentation))
+        self.texture = texture[:min_length]
+        self.harmony = harmony[:min_length]
+        self.instrumentation = instrumentation[:min_length]
 
     def __or__(self, other: 'TensorContraction') -> 'TensorContraction':
         new_harmony = self.harmony + other.harmony if self.harmony is not None else other.harmony
@@ -428,23 +589,6 @@ class TensorContraction:
 
     def notes(self) -> Set['Note']:
         result = set()
-        if self.texture is None and self.harmony is None and self.instrumentation is None:
-            return result
-
-        len_texture = len(self.texture.rhythms) if self.texture is not None else 0
-        len_harmony = len(self.harmony.chords) if self.harmony is not None else 0
-        len_instrumentation = len(self.instrumentation.sections) if self.instrumentation is not None else 0
-        max_len = max(len_texture, len_harmony, len_instrumentation)
-
-        if self.texture is None:
-            unit_rhythm = Rhythm(Hit('0', '1'))
-            self.texture = Texture([unit_rhythm for _ in range(max_len)])
-        if self.harmony is None:
-            unit_chord = Chord()
-            self.harmony = Harmony([unit_chord for _ in range(max_len)])
-        if self.instrumentation is None:
-            unit_section = Section(Instrument('Acoustic Grand Piano'))
-            self.instrumentation = Instrumentation([unit_section for _ in range(max_len)])
 
         for rhythm, chord, group in zip(self.texture.rhythms, self.harmony.chords, self.instrumentation.sections):
             for hit in rhythm.hits:
@@ -454,24 +598,9 @@ class TensorContraction:
         return result
 
     def ordered_notes(self) -> List['Note']:
-        return sorted(self.notes(), key=lambda note: (note.onset, note.pitch.number))
+        notes = self.notes()
+        return sorted(notes, key=lambda note: (note.onset, note.pitch.number))
 
     def to_midi(self, velocity=64, bpm=100):
-        import pretty_midi
-        notes = self.notes()
-        start = min(note.onset for note in notes)
-        midi = pretty_midi.PrettyMIDI()
-
-        instruments = set(note.instrument for note in notes)
-        for instrument in instruments:
-            instrument_program = pretty_midi.instrument_name_to_program(instrument.name)
-            track = pretty_midi.Instrument(program=instrument_program)
-            notes_instrument = [note for note in notes if note.instrument == instrument]
-            for note in notes_instrument:
-                onset_s = float((note.onset-start) * 240 / bpm)
-                duration_s = float(note.duration * 240 / bpm)
-                end_s = onset_s + duration_s
-                note = pretty_midi.Note(velocity=velocity, pitch=note.pitch.number, start=onset_s, end=end_s)
-                track.notes.append(note)
-            midi.instruments.append(track)
-        return midi
+        from .midi import to_midi
+        return to_midi(self.notes(), velocity, bpm)

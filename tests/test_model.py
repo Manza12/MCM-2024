@@ -1,6 +1,7 @@
 import unittest
 from harmtex import frac, Pitch, Hit, Chord, Rhythm, Harmony, Texture, Instrument, Section, Instrumentation, \
     TensorContraction
+from harmtex.model import HarmonicTexture
 
 
 class TestModel(unittest.TestCase):
@@ -47,30 +48,12 @@ class TestModel(unittest.TestCase):
         tc = TensorContraction()
         assert tc.notes() == set()
 
-        h = Harmony(Chord({60, 64, 67}))
-        tc = TensorContraction(h)
-        assert len(tc.notes()) == 3
-
-        h = Harmony(Chord({60, 64, 67}), Chord({62, 65, 67}))
-        tc = TensorContraction(h)
-        assert len(tc.notes()) == 5
-
-        t = Texture(Rhythm(Hit('0/8', '1/8'), Hit('1/8', '1/8'), Hit('2/8', '1/8')))
-        tc = TensorContraction(texture=t)
-        assert len(tc.notes()) == 0
-
         t = Texture(Rhythm(Hit('0/8', '1/8')),
                     Rhythm(Hit('1/8', '1/8'), Hit('2/8', '1/8')))
-        tc = TensorContraction(texture=t)
-        assert len(tc.notes()) == 0
 
         h = Harmony(Chord({60}), Chord({64, 67}))
-        tc = TensorContraction(h, t)
+        tc = HarmonicTexture(h, t)
         assert len(tc.notes()) == 5
-
-        i = Instrumentation(Section(Instrument('piano')))
-        tc = TensorContraction(instrumentation=i)
-        assert len(tc.notes()) == 0
 
         i = Instrumentation(Section(Instrument('Tuba')), Section(Instrument('Horn'), Instrument('Trumpet')))
         tc = TensorContraction(h, t, i)

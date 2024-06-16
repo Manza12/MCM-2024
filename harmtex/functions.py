@@ -1,19 +1,21 @@
-from .model import Texture, Harmony, Instrumentation, TensorContraction, Section, Instrument
+from .model import TensorContraction
 
 
-def contraction(h: Harmony, t: Texture, o: Instrumentation = None) -> TensorContraction:
-    return TensorContraction(h, t, o)
+def parallelization(*args):
+    if len(args) == 0:
+        raise ValueError('At least one argument is required')
 
-
-def parallelization(*args: TensorContraction) -> TensorContraction:
-    harmonic_texture = TensorContraction()
-    for arg in args:
-        harmonic_texture = harmonic_texture | arg
-    return harmonic_texture
+    result = args[0]
+    for arg in args[1:]:
+        result = result | arg
+    return result
 
 
 def concatenation(*args: TensorContraction) -> TensorContraction:
-    harmonic_texture = TensorContraction()
-    for arg in args:
-        harmonic_texture = harmonic_texture - arg
-    return harmonic_texture
+    if len(args) == 0:
+        raise ValueError('At least one argument is required')
+
+    result = args[0]
+    for arg in args[1:]:
+        result = result - arg
+    return result
