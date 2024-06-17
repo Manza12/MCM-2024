@@ -2,7 +2,7 @@ import warnings
 from fractions import Fraction as frac
 from typing import Set, List, Tuple, Union, Optional
 from multimethod import multimethod
-from .constants import ROMAN_NUMERAL_TO_SHIFT
+from .constants import ROMAN_NUMERAL_TO_SHIFT, ROMAN_NUMERAL_TO_FACTORS
 
 
 # Time
@@ -147,6 +147,18 @@ class Pitch:
     @multimethod
     def __add__(self, other: 'Pitch') -> 'Pitch':
         return Pitch(self.number + other.number)
+
+    @multimethod
+    def __add__(self, other: int) -> 'Pitch':
+        return Pitch(self.number + other)
+
+    @multimethod
+    def __sub__(self, other: 'Pitch') -> 'Pitch':
+        return Pitch(self.number - other.number)
+
+    @multimethod
+    def __sub__(self, other: int) -> 'Pitch':
+        return Pitch(self.number - other)
 
     @multimethod
     def __add__(self, other: 'Chord') -> 'Chord':
@@ -294,6 +306,40 @@ class Harmony:
     def from_chord(cls, chord: Chord):
         ordered_pitches = sorted(chord.pitches, key=lambda p: p.number)
         return Harmony([Chord(c) for c in ordered_pitches])
+
+    @classmethod
+    def from_roman_numeral(cls, roman_numeral: str, factors: List[str], octave: int = 0):
+        roman_numeral_dict = ROMAN_NUMERAL_TO_FACTORS[roman_numeral]
+        shifts = list(roman_numeral_dict.values())
+        keys = list(roman_numeral_dict.keys())
+        root = roman_numeral_dict['1']
+        n = len(shifts)
+        shifts_spacing = [(shifts[(i + 1) % n] - shifts[i % n]) % 12 for i in range(len(shifts))]
+        chords = []
+        cum_shift = 0
+        i = 0
+        for f, factor in enumerate(factors):
+            while factor != keys[i] and factor != '-':
+                cum_shift += shifts_spacing[i]
+                i = (i + 1) % n
+
+            chord = Chord(Pitch(root + cum_shift + 12 * octave))
+            chords.append(chord)
+
+            if f < len(factors) - 1 and factors[f + 1] == '-':
+                pass
+            else:
+                cum_shift += shifts_spacing[i]
+                i = (i + 1) % n
+
+        return Harmony(chords)
+
+    def extend(self, n: int = 1):
+        return self + Harmony([Chord() for _ in range(n)])
+
+    def permute(self, permutation: List[int]):
+        assert len(permutation) == len(self)
+        return Harmony([self.chords[i] for i in permutation])
 
 
 # Instruments

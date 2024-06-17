@@ -1,13 +1,20 @@
 from typing import Dict, List
 
 
+ROMAN_NUMERAL_TO_FACTORS: Dict[str, Dict[str, int]] = {
+    'I': {'1': 0, '3': 4, '5': 7},
+    'i': {'1': 0, '3': 3, '5': 7},
+    'iio7': {'1': 2, '3': 5, '5': 8, '7': 0},
+    'N': {'1': 1, '3': 5, '5': 8},
+    'iv': {'1': 5, '3': 8, '5': 0},
+    'IV': {'1': 5, '3': 9, '5': 0},
+    'V7': {'1': 7, '3': 11, '5': 2, '7': 5},
+    'V': {'1': 7, '3': 11, '5': 2},
+}
+
+
 ROMAN_NUMERAL_TO_SHIFT: Dict[str, List[int]] = {
-    'I': [0, 4, 7],
-    'i': [0, 3, 7],
-    'iio7': [2, 5, 8, 0],
-    'V7': [7, 11, 2, 5],
-    'IV': [5, 9, 0],
-    'V': [7, 11, 2],
+    k: list(ROMAN_NUMERAL_TO_FACTORS[k].values()) for k in ROMAN_NUMERAL_TO_FACTORS.keys()
 }
 
 
