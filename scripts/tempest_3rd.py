@@ -63,6 +63,11 @@ motif_1_1 = octave_1 + t_motif_1 * h_motif_1.permute([0, 3, 2, 1, 4])
 arpeggio_1_1 = octave_0 + t_arpeggio_1 * Harmony.from_chord(Chord({-12, -5, 0, 3})).extend(1)
 bass_1_1 = octave_minus_1 + t_bass_1 * Harmony.from_chord(Chord({0, 7}))
 
+motif_1_1.to_midi(bpm=110).write('../midi/tempest_3rd-mel.mid')
+arpeggio_1_1.to_midi(bpm=110).write('../midi/tempest_3rd-harm.mid')
+bass_1_1.to_midi(bpm=110).write('../midi/tempest_3rd-bass.mid')
+parallelization(motif_1_1, arpeggio_1_1, bass_1_1).to_midi(bpm=120).write('../midi/tempest_3rd-block-1.mid')
+
 motif_1_2_a = octave_1 + t_motif_1 * h_motif_1.permute([0, 3, 1, 2, 4])
 motif_1_2_b = octave_1 + t_motif_1 * h_motif_2.permute([0, 3, 2, 1, 4])
 motif_1_2_c = octave_1 + t_motif_1 * h_motif_2.permute([0, 3, 1, 2, 4])

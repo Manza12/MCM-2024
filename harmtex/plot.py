@@ -5,6 +5,7 @@ from harmtex.utils import midi_number_to_pitch
 
 
 def plot_notes(tensor_contraction: TensorContraction,
+               figsize=(10, 5),
                linewidth: float = 5,
                eps: float = 0.01,
                show=False,
@@ -14,7 +15,7 @@ def plot_notes(tensor_contraction: TensorContraction,
                ):
     notes = tensor_contraction.notes()
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=figsize)
     for note in notes:
         plt.hlines(note.frequency, float(note.start), float(note.end), color='black', linewidth=linewidth)
 
