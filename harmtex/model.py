@@ -69,6 +69,9 @@ class Rhythm:
     def __add__(self, shift: frac) -> 'Rhythm':
         return Rhythm({shift + Hit(hit.onset, hit.duration) for hit in self.hits})
 
+    def __mul__(self, ratio: Union[int, frac]) -> 'Rhythm':
+        return Rhythm({Hit(hit.onset * ratio, hit.duration * ratio) for hit in self.hits})
+
     def __eq__(self, other):
         if not isinstance(other, Rhythm):
             return False
@@ -103,8 +106,17 @@ class Texture:
     def __mul__(self, instrumentation: 'Instrumentation') -> 'InstrumentedTexture':
         return InstrumentedTexture(instrumentation, self)
 
+    @multimethod
+    def __mul__(self, ratio: Union[frac, int]) -> 'Texture':
+        return Texture([r * ratio for r in self.rhythms])
+
+    @multimethod
     def __add__(self, other: 'Texture') -> 'Texture':
         return Texture(self.rhythms + other.rhythms)
+
+    @multimethod
+    def __add__(self, other: Union[frac, int]) -> 'Texture':
+        return Texture([r + other for r in self.rhythms])
 
     def __sub__(self, other: 'Texture') -> 'Texture':
         return Texture(self.rhythms + [r + self.endpoint for r in other.rhythms])
@@ -216,6 +228,9 @@ class Chord:
     def __init__(self, pitches: Set[int]):
         self.pitches = {Pitch(p) for p in pitches}
 
+    def __add__(self, other: int) -> 'Chord':
+        return Chord({p + other for p in self.pitches})
+
     def __getitem__(self, key):
         ordered_pitches = sorted(list(self.pitches))
         return Chord({ordered_pitches[i] for i in key})
@@ -277,8 +292,13 @@ class Harmony:
     def __init__(self, *chords: Union[Chord, Set[Pitch], Set[int]]):
         self.chords = [Chord(c) for c in chords]
 
+    @multimethod
     def __add__(self, other: 'Harmony') -> 'Harmony':
         return Harmony(self.chords + other.chords)
+
+    @multimethod
+    def __add__(self, other: int) -> 'Harmony':
+        return Harmony(*[c + other for c in self.chords])
 
     @multimethod
     def __mul__(self, texture: Texture) -> 'HarmonicTexture':
@@ -375,6 +395,9 @@ class Section:
     @multimethod
     def __init__(self, *instruments: Instrument):
         self.instruments = set(instruments)
+
+    def __mul__(self, other: int):
+        return Instrumentation(*[self for _ in range(other)])
 
     def __eq__(self, other):
         if not isinstance(other, Section):
@@ -593,6 +616,9 @@ class InstrumentedTexture:
             return False
         return self.texture == other.texture and self.instrumentation == other.instrumentation
 
+    def __mul__(self, other: Harmony) -> 'TensorContraction':
+        return TensorContraction(other, self.texture, self.instrumentation)
+
 
 class TensorContraction:
     @multimethod
@@ -633,6 +659,16 @@ class TensorContraction:
         new_instrumentation = self.instrumentation + other.instrumentation \
             if self.instrumentation is not None else other.instrumentation
         return TensorContraction(new_harmony, new_texture, new_instrumentation)
+
+    @multimethod
+    def __add__(self, other: frac):
+        new_texture = self.texture + other if self.texture is not None else None
+        return TensorContraction(self.harmony, new_texture, self.instrumentation)
+
+    @multimethod
+    def __add__(self, other: int):
+        new_harmony = self.harmony + other if self.harmony is not None else None
+        return TensorContraction(new_harmony, self.texture, self.instrumentation)
 
     def __eq__(self, other):
         if not isinstance(other, TensorContraction):
