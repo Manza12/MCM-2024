@@ -15,23 +15,43 @@ octave_4 = C4
 octave_3 = C4 - 12
 octave_2 = C4 - 12 * 2
 octave_5 = C4 + 12
+octave_6 = C4 + 12 * 2
 
 # Textures
 t_main_head = Texture(
     Rhythm(Hit('1/8', '1/8'), Hit('2/8', '1/8'), Hit('3/8', '1/8'))
+)
+t_main_head_bis = Texture(
+    Rhythm(Hit('1/8', '1/8'), Hit('2/8', '1/8')),
+    Rhythm(Hit('3/8', '1/8'))
+)
+t_main_head_ter = Texture(
+    Rhythm(Hit('1/8', '1/8')),
+    Rhythm(Hit('2/8', '1/8')),
+    Rhythm(Hit('3/8', '1/8'))
 )
 t_half = Texture(Rhythm(Hit('0', '1/2')))
 
 t_main_1 = t_main_head - t_half
 t_main_2 = t_main_head - (t_half * 2)
 
+r_quarter = Rhythm(Hit('0', '1/4'))
+
 # Orquestration
-violin = Instrument('Violin')
+flute = Instrument('Flute')
+oboe = Instrument('Oboe')
 clarinet = Instrument('Clarinet')
+basson = Instrument('Bassoon')
+
+horn = Instrument('French Horn')
+trombone = Instrument('Trombone')
+
+timpani = Instrument('Timpani')
+
+violin = Instrument('Violin')
 viola = Instrument('Viola')
 cello = Instrument('Cello')
 contrabass = Instrument('Contrabass')
-basson = Instrument('Bassoon')
 
 s_violin = Section(violin)
 s_clarinet = Section(clarinet)
@@ -39,6 +59,11 @@ s_viola = Section(viola)
 s_cello = Section(cello)
 s_contrabass = Section(contrabass)
 s_basson = Section(basson)
+s_trombone = Section(trombone)
+s_horn = Section(horn)
+s_timpani = Section(timpani)
+s_flute = Section(flute)
+s_oboe = Section(oboe)
 
 s_1_high = Section(clarinet, violin)
 s_1_medi = Section(viola)
@@ -48,12 +73,34 @@ o_1_high = Instrumentation(s_1_high, s_1_high)
 o_1_medi = Instrumentation(s_1_medi, s_1_medi)
 o_1_bass = Instrumentation(s_1_bass, s_1_bass)
 
+o_all = Instrumentation(Section(violin, viola, cello, contrabass, flute, oboe, clarinet, basson, horn, trombone, timpani))
+
 # Harmony
-h_1 = Harmony(Chord({7}), Chord({3}))
-h_2 = Harmony(Chord({5}), Chord({2}))
-h_3 = Harmony(Chord({8}), Chord({7}))
-h_4 = Harmony(Chord({3}), Chord({0}))
-h_5 = Harmony(Chord({7}), Chord({2}))
+tonic = Chord({0})
+supertonic = Chord({2})
+mediant = Chord({3})
+subdominant = Chord({5})
+tritone = Chord({6})
+dominant = Chord({7})
+submediant = Chord({8})
+leading_tone = Chord({11})
+
+supertonic_ = supertonic + (-12)
+mediant_ = mediant + (-12)
+subdominant_ = subdominant + (-12)
+tritone = tritone + (-12)
+dominant_ = dominant + (-12)
+submediant_ = submediant + (-12)
+leading_tone_ = leading_tone + (-12)
+
+
+h_1 = Harmony(dominant, mediant)
+h_2 = Harmony(subdominant, supertonic)
+h_3 = Harmony(submediant, dominant)
+h_4 = Harmony(mediant, tonic)
+h_5 = Harmony(dominant, supertonic)
+h_6 = Harmony(dominant, subdominant, mediant)
+h_6_ = reversed(h_6)
 
 h_ton = Harmony(Chord({0}))
 h_led_ = Harmony(Chord({-1}))
@@ -73,11 +120,12 @@ m_2 = parallelization(m_2_high, m_2_medi, m_2_bass)
 phrase_1 = concatenation(m_1, m_2)
 
 ## Phrase 2
+cello_basson = Instrumentation(Section(cello, basson))
 ot_1 = (t_main_head - (t_half * frac(3*4+1,4))) * (Section(violin) * 2)
 ot_2 = ((t_main_head - (t_half * frac(2*4+2,4))) + frac(1, 2)) * (Section(viola) * 2)
 ot_3 = ((t_main_head - (t_half * frac(1*4+2,4))) + frac(2, 2)) * (Section(violin) * 2)
 ot_high = parallelization(ot_1, ot_2, ot_3)
-ot_bass = (t_half * 4 + frac(1, 2)) * (Instrumentation(Section(cello, basson)))
+ot_bass = (t_half * 4 + frac(1, 2)) * cello_basson
 ot = parallelization(ot_high, ot_bass)
 
 h_I = octave_4 + (h_1 + h_3 + (h_4 + 12) + h_ton)
@@ -85,14 +133,114 @@ h_V = octave_4 + (h_5 + h_3 + (h_2 + 12) + h_led_)
 
 phrase_2 = concatenation(ot * h_I, ot * h_V + frac(-1, 2))
 
+## Phrase 3
+t_1 = t_main_head_bis - (t_half * frac(4, 4))
+m_4 = t_1 * (octave_4 + h_6) * (s_violin * 3) | (t_half + frac(1, 2)) * (octave_4 + h_ton) * cello_basson
+m_5 = t_1 * (octave_4 + h_6_) * (Section(violin, viola) * 3) | (t_half + frac(1, 2)) * (octave_4 + h_led_) * cello_basson
+m_6 = concatenation(m_4, m_5 + frac(-1, 2))
+phrase_3 = m_6 - (m_6 + frac(-1, 2))
+
+## Phrase 4
+h_flauti = octave_6 + (Harmony(supertonic | dominant) + Harmony(supertonic | subdominant))
+m_1_flauti = t_main_head_bis * h_flauti * (Section(flute) * 2)
+
+h_oboi = octave_5 + (Harmony(supertonic | dominant) + Harmony(supertonic | subdominant))
+m_1_oboi = t_main_head_bis * h_oboi * (Section(oboe) * 2)
+
+h_clarinet = octave_4 + (Harmony(dominant_ | leading_tone_) + Harmony(leading_tone_ | supertonic) + Harmony(supertonic | dominant))
+m_1_clarinet = t_main_head_ter * h_clarinet * (Section(clarinet) * 3)
+
+h_basson = octave_3 + Harmony(leading_tone_)
+m_1_basson = t_main_head * h_basson * (Section(basson) * 1)
+
+h_horn = octave_3 + Harmony(dominant)
+m_1_horn = t_main_head * h_horn * (Section(horn) * 1)
+
+h_trombone = octave_3 + Harmony(dominant_ | dominant)
+m_1_trombone = t_main_head * h_trombone * (Section(trombone) * 1)
+
+h_timpani = octave_2 + Harmony(dominant)
+m_1_timpani = t_main_head * h_timpani * (Section(timpani) * 1)
+
+h_violin = octave_5 + (Harmony(supertonic | dominant) + Harmony(dominant_ | subdominant))
+m_1_violin = t_main_head_bis * h_violin * (Section(violin) * 2)
+
+h_cello = octave_3 + h_led_
+m_1_cello = t_main_head * h_cello * (Section(cello) * 1)
+
+h_contrabass = octave_2 + h_led_
+m_1_contrabass = t_main_head * h_contrabass * (Section(contrabass) * 1)
+
+m_1 = parallelization(
+    m_1_flauti,
+    m_1_oboi,
+    m_1_clarinet,
+    m_1_basson,
+    m_1_horn,
+    m_1_trombone,
+    m_1_timpani,
+    m_1_violin,
+    m_1_cello,
+    m_1_contrabass)
+
+h_2 = ((octave_2 + Harmony(tonic)) +  # Contrabass
+       (octave_3 + Harmony(tonic)) +  # Cello
+       (octave_3 + Harmony(mediant)) +  # Viola
+       (octave_3 + Harmony(tonic | dominant | (mediant + 12))) +  # Violin
+       (octave_2 + Harmony(tonic)) +  # Timpani
+       (octave_2 + Harmony(tonic | (tonic + 12))) +  # Trombone
+       (octave_3 + Harmony(dominant)) +  # Horn
+       (octave_3 + Harmony(tonic)) +  # Bassoon
+       (octave_3 + Harmony(mediant | dominant)) +  # Clarinet
+       (octave_5 + Harmony(tonic | mediant)) +  # Oboe
+       (octave_6 + Harmony(tonic | mediant)))  # Flute
+
+o_2 = Instrumentation(s_contrabass, s_cello, s_viola, s_violin, s_timpani, s_trombone, s_horn, s_basson, s_clarinet, s_oboe, s_flute)
+t_2 = Texture(*(r_quarter for _ in range(11)))
+m_2 = t_2 * h_2 * o_2
+
+
+h_3 = ((octave_2 + Harmony(submediant_)) +  # Contrabass
+       (octave_2 + Harmony(submediant_)) +  # Cello
+       (octave_3 + Harmony(submediant_)) +  # Viola
+       (octave_3 + Harmony(submediant_ | tritone | (tonic + 12))) +  # Violin
+       (octave_2 + Harmony(tonic)) +  # Timpani
+       (octave_2 + Harmony(tonic | (tonic + 12))) +  # Trombone
+       (octave_3 + Harmony(mediant | mediant_)) +  # Horn
+       (octave_2 + Harmony(submediant_)) +  # Bassoon
+       (octave_3 + Harmony(tonic | tritone)) +  # Clarinet
+       (octave_5 + Harmony(tonic | tritone)) +  # Oboe
+       (octave_6 + Harmony(tonic)))  # Flute
+
+m_3 = t_2 * h_3 * o_2
+
+
+h_4 = ((octave_2 + Harmony(dominant)) +  # Contrabass
+       (octave_2 + Harmony(dominant)) +  # Cello
+       (octave_3 + Harmony(dominant)) +  # Viola
+       (octave_3 + Harmony(dominant_ | dominant | leading_tone)) +  # Violin
+       (octave_2 + Harmony(dominant_)) +  # Timpani
+       (octave_2 + Harmony(dominant_ | dominant)) +  # Trombone
+       (octave_3 + Harmony(dominant_ | dominant)) +  # Horn
+       (octave_2 + Harmony(dominant_)) +  # Bassoon
+       (octave_3 + Harmony(leading_tone_ | supertonic)) +  # Clarinet
+       (octave_5 + Harmony(leading_tone_ | dominant)) +  # Oboe
+       (octave_6 + Harmony(leading_tone_ | dominant)))  # Flute
+
+m_4 = t_2 * h_4 * o_2
+
+quater_silence = Texture(Rhythm(Hit('0', '1/4'))) * Harmony(Chord()) * o_all
+
+phrase_4 = concatenation(m_1, m_2, quater_silence, m_3, quater_silence, m_4, quater_silence)
+
 ## Full piece
-piece = concatenation(phrase_1, phrase_2)
+piece = concatenation(phrase_1, phrase_2, phrase_3 + frac(-1, 2), phrase_4 + frac(-1, 2))
 
 # Paths
 name = 'beethoven_fifth'
 midi_path = Path(f'../midi/{name}.mid')
 audio_path = Path(f'../audio/{name}.wav')
-sf2_path = Path("../../../SoundFonts/FluidR3_GM2-2.sf2")
+sf2_path = Path("../../../SoundFonts/FluidR3_GM2-2.sf2")  # FluidR3_GM2-2.sf2, GeneralUser-GS/GeneralUser-GS.sf2
 
 # Write MIDI
 midi = piece.to_midi(bpm=108*2)

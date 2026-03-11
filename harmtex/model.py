@@ -231,6 +231,9 @@ class Chord:
     def __add__(self, other: int) -> 'Chord':
         return Chord({p + other for p in self.pitches})
 
+    def __or__(self, other: 'Chord') -> 'Chord':
+        return Chord(self.pitches | other.pitches)
+
     def __getitem__(self, key):
         ordered_pitches = sorted(list(self.pitches))
         return Chord({ordered_pitches[i] for i in key})
@@ -360,6 +363,9 @@ class Harmony:
     def permute(self, permutation: List[int]):
         assert len(permutation) == len(self)
         return Harmony([self.chords[i] for i in permutation])
+
+    def __reversed__(self):
+        return Harmony(list(reversed(self.chords)))
 
 
 # Instruments
@@ -669,6 +675,15 @@ class TensorContraction:
     def __add__(self, other: int):
         new_harmony = self.harmony + other if self.harmony is not None else None
         return TensorContraction(new_harmony, self.texture, self.instrumentation)
+
+    def __mul__(self, other: int) -> 'TensorContraction':
+        # Concatenante the tensor contraction with itself other times
+        if other <= 0:
+            raise ValueError("The multiplication factor must be a positive integer.")
+        elif other == 1:
+            return self
+        else:
+            return self - (self * (other - 1))
 
     def __eq__(self, other):
         if not isinstance(other, TensorContraction):
