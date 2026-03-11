@@ -384,6 +384,9 @@ class Section:
     def __repr__(self):
         return '{' + f"{', '.join([str(i) for i in self.instruments])}" + '}'
 
+    def __hash__(self):
+        return hash(tuple(sorted(self.instruments, key=lambda i: i.name)))
+
 
 class Instrumentation:
     @multimethod

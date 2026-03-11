@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from harmtex.audio import render_midi_to_audio
 from harmtex.functions import concatenation, parallelization
 from harmtex.model import Hit, Harmony, Chord, Rhythm, Texture, Pitch, Instrumentation, Instrument, Section
 from harmtex.plot import plot_notes, plt
@@ -77,10 +80,22 @@ melody = concatenation(melody_1, melody_2)
 # Structure
 phrase_1 = parallelization(harmony, melody)
 
+# Paths
+midi_path = Path('../midi/sonata_16-caribbean.mid')
+audio_path = Path('../audio/sonata_16-caribbean.wav')
+sf2_path = Path("../../../SoundFonts/FluidR3_GM2-2.sf2")
+
 # Write MIDI
 fragment = phrase_1
 midi = fragment.to_midi(bpm=120)
 midi.write('../midi/sonata_16-caribbean.mid')
+
+# Render MIDI to audio
+render_midi_to_audio(
+    midi_path,
+    audio_path,
+    sf2_path
+)
 
 # Plot
 plot_notes(fragment,
