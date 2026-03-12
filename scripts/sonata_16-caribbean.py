@@ -83,7 +83,7 @@ phrase_1 = parallelization(harmony, melody)
 # Paths
 midi_path = Path('../midi/sonata_16-caribbean.mid')
 audio_path = Path('../audio/sonata_16-caribbean.wav')
-sf2_path = Path("../../../SoundFonts/FluidR3_GM2-2.sf2")
+sf2_path = Path("../../../SoundFonts/Arachno/Arachno-v1.0.sf2")
 
 # Write MIDI
 fragment = phrase_1

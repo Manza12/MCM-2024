@@ -240,13 +240,22 @@ piece = concatenation(phrase_1, phrase_2, phrase_3 + frac(-1, 2), phrase_4 + fra
 name = 'beethoven_fifth'
 midi_path = Path(f'../midi/{name}.mid')
 audio_path = Path(f'../audio/{name}.wav')
-sf2_path = Path("../../../SoundFonts/FluidR3_GM2-2.sf2")  # FluidR3_GM2-2.sf2, GeneralUser-GS/GeneralUser-GS.sf2
 
 # Write MIDI
 midi = piece.to_midi(bpm=108*2)
 midi.write(midi_path)
 
 # Render MIDI to audio
+sound_font = 'Arachno'
+
+sound_fonts_paths = {
+    'FluidR3_GM2-2': Path("../../../SoundFonts/FluidR3_GM2-2.sf2"),
+    'GeneralUser': Path("../../../SoundFonts/GeneralUser-GS/GeneralUser-GS.sf2"),
+    'Musyng Kite': Path("../../../SoundFonts/Musyng_Kite/Musyng_Kite.sf2"),
+    'Arachno': Path("../../../SoundFonts/Arachno/Arachno-v1.0.sf2"),
+}
+sf2_path = sound_fonts_paths[sound_font]
+
 render_midi_to_audio(
     midi_path,
     audio_path,
